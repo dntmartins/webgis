@@ -1,0 +1,38 @@
+<div class="divUsers">
+	<h1 class="text-center">Usuários</h1>
+	<br />
+	<br />
+	<p>
+        <a class="btn btn-primary" href="<?php echo $this->basePath(); ?>/user/form" rel="tooltip" data-container="body" data-placement="bottom" title="Criar um usuário"><span class="glyphicon glyphicon-plus"></span> Novo</a>
+		<a class="btn btn-primary" href="<?php echo $this->basePath(); ?>/user/associateProjects" rel="tooltip" data-container="body" data-placement="bottom" title="Definir/alterar os projetos associados aos usuários">Associar usuários a projetos</a>
+	</p>
+	<div class="table-responsive">
+		<table class="table table-bordered">
+			<thead class="sortable">
+				<tr>
+					<th>Nome</th>
+					<th>Email</th>
+					<th>Perfil</th>
+					<th>Ação</th>
+				</tr>
+			</thead>
+				<?php if($this->users) { ?>
+		    <tbody>
+		    <?php foreach($this->users as $user): ?>
+		    <tr>
+				<td class="<?php !$user->active?print 'link-disable':'' ?>"><?php echo $user->name; ?></td>
+				<td class="<?php !$user->active?print 'link-disable':'' ?>"><?php echo $user->email; ?></td>
+				<td class="<?php !$user->active?print 'link-disable':'' ?>"><?php echo $user->rol->name; ?></td>
+				<td>
+					<a class="glyphicon glyphicon-edit<?php !$user->active?print ' link-disable':''?>" href='<?php echo $this->basePath()."/user/form?id=".$user->useId; ?>' rel="tooltip" data-container="body" data-placement="bottom" title="Modificar informações do usuário"></a>
+					<a class="glyphicon <?php $user->active?print ' glyphicon-ban-circle ':print ' glyphicon-ok-circle' ?><?php $this->loggedUser->useId == $user->useId?print ' link-disable': ''?>" <?php $user->active?print "href='javascript:disableUser($user->useId, \"$this->basePath/user/disable\");'":print "href='javascript:enableUser($user->useId, \"$this->basePath/user/enable\");'" ?> rel="tooltip" data-container="body" data-placement="bottom" title="<?php $user->active?print 'Desativar usuário':print 'Ativar usuário' ?>"></a>
+				</td>
+			</tr>
+		    <?php endforeach; }?>
+		    </tbody>
+		</table>
+	</div>
+</div>
+<script>
+var basePath = '<?php echo $this->basePath(); ?>';
+</script>

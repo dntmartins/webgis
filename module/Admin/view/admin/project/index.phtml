@@ -1,0 +1,66 @@
+<div class="divUsers">
+	<h1 class="text-center">Projetos</h1>
+	<br />
+	<br />
+	<p>
+        <a class="btn btn-primary" href="<?php echo $this->basePath(); ?>/project/form" rel="tooltip" data-container="body" data-placement="bottom" title="Criar um projeto"><span class="glyphicon glyphicon-plus"></span> Novo</a>
+        <a class="btn btn-primary" href="<?php echo $this->basePath(); ?>/user/associateProjects" rel="tooltip" data-container="body" data-placement="bottom" title="Definir/alterar os projetos associados aos usuários">Associar usuários a projetos</a>
+	</p>
+	<div class="table-responsive">
+		<table class="table table-bordered">
+			<thead class="sortable">
+				<tr>
+					<th>Nome</th>
+					<th>Descrição</th>
+					<th>Link</th>
+					<th>Ação</th>
+				</tr>
+			</thead>
+		    <tbody>
+		    <?php 
+		    if($this->projects) { 
+		    	foreach($this->projects as $project):
+		    ?>
+				    <tr>
+						<td class="<?php !$project->active?print 'link-disable':'' ?>"><?php echo $project->projectName; ?></td>
+						<td class="<?php !$project->active?print 'link-disable':'' ?>"><?php echo $project->description; ?></td>
+						<td class="<?php !$project->active?print 'link-disable':'' ?>"><?php echo $project->link; ?></td>
+						<td>
+							<a class="glyphicon glyphicon-globe <?php !$project->active?print 'link-disable':'' ?>" href='javascript:getPublish(<?php echo $project->prjId ?>);' rel="tooltip" data-container="body" data-placement="bottom" title="Publicar"></a>
+							<a class="glyphicon glyphicon-edit <?php !$project->active?print 'link-disable':'' ?>" href='<?php echo $this->basePath()."/project/form?id=".$project->prjId; ?>' rel="tooltip" data-container="body" data-placement="bottom" title="Modificar informações do projeto"></a>
+							<a class="glyphicon <?php $project->active?print ' glyphicon-ban-circle ':print ' glyphicon-ok-circle' ?>" <?php $project->active?print "href='javascript:disableProject($project->prjId, \"$this->basePath/project/disable\");'":print "href='javascript:enableProject($project->prjId, \"$this->basePath/project/enable\");'" ?> rel="tooltip" data-container="body" data-placement="bottom" title="<?php $project->active?print 'Desativar projeto':print 'Ativar projeto' ?>"></a>
+						</td>
+					</tr>
+		    <?php 
+		    	endforeach; 
+		    }
+		    ?>
+		    </tbody>
+		</table>
+	</div>
+</div>
+<div class="modal fade" id="publish" role="dialog"
+	aria-labelledby="myModalLabel" aria-hidden="true">
+	<div class="modal-dialog">
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+				<h4 class="modal-title" id="modalTitle">Publicar</h4>
+			</div>
+			<div class="modal-body">
+				<form method="post" action="<?php print $this->basePath().'/project/publish' ?>">
+					<span id='modalLabelError'></span>
+					<label for="publishDate">
+						Tornar oficiais os dados até: 
+						<input type="date" placeholder="dd/mm/aaaa" class="form-control" id="publishDate" name="publishDate" value="<?php echo date('Y-m-d'); ?>">
+					</label>
+					<input type="hidden" name='id' id='id' value="" />
+					<input class="btn btn-primary" type="button" value="Publicar" onclick="publish()" />
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+<script>
+var basePath = '<?php echo $this->basePath(); ?>';
+</script>

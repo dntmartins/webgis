@@ -1,0 +1,74 @@
+<div class="userForms">
+	<form class="form-horizontal" id="form" method="post"
+		action="<?php echo $this->basePath(); ?>/user/associateProjects">
+       <h1 class="text-center">Associação de usuários a projetos</h1>
+	   <br />
+	   <br />
+		<div id="form-group-users" class="form-horizontal">
+			<label>Usuário corrente: </label>
+			<a class="glyphicon glyphicon-question-sign" rel="tooltip" data-container="body" data-placement="bottom" title="Para começar, selecione o usuário corrente"></a>
+			<div class="form-inline">
+			<span id="help-block-users" class="help-block"></span> 
+			<select id="users" name="users" class="required form-control" onchange="changeUser()" rel="tooltip" data-container="body" data-placement="bottom" title="Selecione o usuário corrente" <?php $this->user?print 'disabled':'' ?>>
+				<option value="0">Usuários</option>
+				<?php
+				if (! empty ( $this->users )) {
+					foreach ( $this->users as $user) {
+						if ($user->active) { // Usuários inativos não são listados
+							?>
+	                    		<option value="<?php echo $user->useId; ?>"<?php $this->user && $this->user->useId == $user->useId?print "selected":'' ?>>
+	                    			<?php echo $user->name; ?>
+	                    		</option>
+	                    	<?php
+						}
+					}
+				}
+				?>
+			</select>
+			</div>
+			<br />
+			<div id="form-group-checkProjects" class="form-horizontal">
+				<span id="help-block-checkProjects" class="help-block"></span>
+			</div>
+			<label id="txtProject">Subprojetos: <a class="glyphicon glyphicon-question-sign" rel="tooltip" data-container="body" data-placement="bottom" title="Selecione os subprojetos associados ao usuário corrente"></a></label>
+		</div>
+		<br />
+		<div class="form-horizontal">
+    			<?php
+					if (! empty ( $this->projects )) {
+						foreach ( $this->projects as $i => $project ) {
+							if($project->active){
+				?>
+					<div class="col-md-12 nopadding">
+						<div class="checkbox col-md-7 center">
+							<label title="<?php echo $project->projectName; ?>" class="center">
+								<input id="prj<?php echo $project->prjId ?>" name='prjs[]' value="<?php echo $project->prjId; ?>" type="checkbox" />
+			            		<?php print $project->prjId . '. ' . $project->projectName ?>
+			            	</label>
+						</div>
+					</div>
+					<br />
+					<br />
+					<br />
+					<br />
+					<br />
+					<?php 
+							}
+					}
+				}
+			?>
+			<button type="submit" id="btn-submit" class="btn btn-primary" rel="tooltip" data-container="body" data-placement="bottom" title="Salvar" onclick="return validateForm(validadeAssociateForm)">Salvar</button>	
+			<input type="hidden" name="userId" value="<?php $this->user?print $this->user->useId:'' ?>" />
+			<br />
+			<br /> 
+			<a rel="tooltip" data-container="body" data-placement="bottom" title="Voltar para a lista de usuários" class="btn btn-primary" href="<?php echo $this->basePath(); ?>/user">Listar usuários</a>
+			<br />
+			<br />
+		</div>
+	</form>
+</div>
+<script type="text/javascript">
+(function(){
+	changeUser();
+})(jQuery)
+</script>

@@ -1,0 +1,25 @@
+--Dependências--
+php5-mysql
+php5-gd
+sendmail
+
+--Gerar entidades automaticamente--
+Para gerar entidades automaticamente, deve ser criada uma pasta chamada "Entity" no diretório "src" do módulo, ao lado da pasta controller. Em seguida, o seguinte comando deve ser executado no terminal:
+./vendor/doctrine/doctrine-module/bin/doctrine-module orm:convert-mapping --namespace="nomeDoMódulo\\Entity\\" --force  --from-database annotation ./module/nomeDoMódulo/src/
+# É preciso navegar até a pasta raiz do projeto com o comando "cd"
+# Para o comando funcionar é necessário especificar o namespace do módulo no argumento "--namespace" e o diretório onde a pasta "Entity" está localizada no final do comando.
+Logo após, as entidades, com todas as annotations necessárias serão criadas dentro da pasta "Entity", porém os métodos get e set não serão gerados, por isso, é preciso gerá-los manualmente.
+
+#example
+./vendor/doctrine/doctrine-module/bin/doctrine-module orm:convert-mapping --namespace="Storage\\Entity\\" --force --from-database annotation ./module/Storage/src/
+
+--Ajustar tamanho máximo dos arquivos de upload--
+Modificar o arquivo: /etc/php5/apache2/php.ini
+Alterar o valor das linhas upload_max_filesize e post_max_size.
+Exemplo:
+upload_max_filesize=100M
+post_max_size=100M #Crie caso não exista
+#M = Megabytes
+
+--Tempo máximo de execução--
+max_execution_time = valor(segundos)

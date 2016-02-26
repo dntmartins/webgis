@@ -1,0 +1,56 @@
+<div class="container container-padding">
+	<div class="row">
+	<div data-example-id="thumbnails-with-custom-content" class="bs-example">
+		<div class="row">
+	<?php
+	if ($this->projects) {
+		function subName($name) {
+			$auxstr = $name;
+			if (strlen ( utf8_decode($name )) > 80)
+				$auxstr = utf8_encode(substr(utf8_decode($name),0,80)) . "...";
+			return $auxstr;
+		}
+		foreach ( $this->projects as $project ) {
+			if($project->active){
+		?>
+					<div class="col-sm-6 col-md-3">
+						<div class="thumbnail">
+							<img alt="<?php echo $project->projectName ?>" data-src="holder.js/100%x200"
+								style="height: 200px; width: 100%; display: block;"
+								src="<?php echo "/project/getLogo?id=".$project->prjId ?>"
+								data-holder-rendered="true">
+							<div class="caption">
+								<h4><?php echo $project->projectName ?></h4>
+								<p><?php echo subName($project->description) ?></p>
+								<p><a role="button" class="btn btn-primary" href="<?php echo $this->basePath().'/projeto?id='.$project->prjId ?>">Ver projeto</a></p>
+							</div>
+						</div>
+					</div>
+	<?php
+			}
+		}
+	}else{
+		echo '<br><br><br><div class="jumbotron">
+		    	<h1>Não existem projetos</h1>      
+		   		<p>Para criar um projeto é necessário uma conta de Administrador.</p>
+		 	 </div>';
+	}
+	?>
+			</div>
+		</div>
+	</div>
+</div>
+<script type="text/javascript">
+$(document).ready(function() {
+    $(window).bind("capsOn", function(event) {
+        $("#statetext").html("A tecla caps lock está ativada");
+    });
+    $(window).bind("capsOff", function(event) {
+        $("#statetext").html("");
+    });
+    $(window).bind("capsUnknown", function(event) {
+        $("#statetext").html("");
+    });
+    $(window).capslockstate();
+});
+</script>

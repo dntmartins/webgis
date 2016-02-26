@@ -1,0 +1,63 @@
+<div class="userForms">
+	<form class="form-horizontal" id="form" method="post"
+		action="<?php echo $this->basePath(); ?>/user/form">
+	       <h1 class="text-center"><?php $this->us?print 'Edição de usuário':print 'Criação de usuário'?></h1>
+	       <br />
+				<div id="form-group-nome" class="form-horizontal">
+		            <label for="nome-input">Nome: </label>
+		            <input id="nome-input" type="text" class="form-control" name="name" placeholder="Nome do usuário" value="<?php $this->us?print $this->us->name:''?>">
+		            <span id="help-block-nome" class="help-block"></span>
+		        </div>
+		        
+		       <div id="form-group-email" class="form-horizontal">
+		            <label for="email-input">Email: </label>
+		            <input id="email-input" type="text" class="form-control" name="email" placeholder="Email do usuário" value="<?php $this->us?print $this->us->email:''?>">
+		            <span id="emailMsg"></span>
+		            <span id="help-block-email" class="help-block"></span>
+		        </div>
+		        
+		        <div id="form-group-password" class="form-horizontal">
+		            <label for="password-input">Senha: </label>
+		            <input id="password-input" type="password"  name="password" placeholder="Senha do usuário" class="<?php $this->us?print 'form-control input-md ignore':print 'form-control input-md'?>" value="" autocomplete="off">
+		            <span id="help-block-password" class="help-block"></span>
+		        </div>
+		        
+                <br />
+				<div id="form-group-comboRoles" class="form-horizontal">
+					<label>Perfil: </label>
+					<span id="help-block-comboRoles" class="help-block"></span>
+					<select id="comboRoles" name="role" class="required form-control" rel="tooltip" data-container="body" data-placement="bottom" title="Escolha o perfil do usuário">
+					<option value="0">Perfis</option>						
+				<?php
+                    if (! empty($roles)) {
+                        foreach ($roles as $role) {
+                        	if(($role->rolId == 102) || ($role->rolId == 4)) // Os perfis coordenador geral (requisições) e administrador não são listados 
+                        		continue;
+                        	
+                        	if($this->us && $role->rolId == $this->us->rol->rolId){ // Marca como selecionada a role do usuário que está sendo modificado 
+                        ?>
+                    			<option value="<?php echo $role->rolId; ?>" selected><?php echo $role->name; ?></option>
+                    	<?php
+                        	}
+                        	else{
+                        ?>
+                        		<option value="<?php echo $role->rolId; ?>"><?php echo $role->name; ?></option>
+                    <?php
+                        	}
+
+                        }
+                    }
+                	?>
+			</select>
+			</div>
+			<br />
+			<button type="submit" id="btn-submit" class="btn btn-primary" rel="tooltip" data-container="body" data-placement="bottom" title="Ir para o próximo passo" onclick="return validateForm(validateFormUser)">Próximo</button>
+			<br /><br />
+			<input type="hidden" value="<?php $this->us?print $this->us->useId:'' ?>" id="id" name="id"/>
+			
+			<a rel="tooltip" data-container="body" data-placement="bottom" title="Voltar para a lista de usuários" class="btn btn-primary" href="<?php echo $this->basePath(); ?>/user">Listar usuários</a>
+					<br>
+					<br>
+	            <p><small>*Todos os campos são obrigatórios</small></p>
+	</form>
+</div>

@@ -1,0 +1,47 @@
+<form class="form-horizontal" id="form" method="post"
+	action="<?php echo $this->basePath(); ?>/role/form">
+	<div class="container">
+		<div class="divUsers">
+	       	<h1 class="text-center"><?php $this->role?print 'Edição de perfil':print 'Criação de perfil'?></h1>
+			<div class="form-horizontal">
+				<div id="form-group-nome" class="form-horizontal">
+		            <label for="nome-input">Nome: </label>
+		            <input id="nome-input" type="text" class="form-control" name="name" placeholder="Nome do perfil" 
+		            value="<?php $this->role?print $this->role->name:'' ?>">
+		            <span id="help-block-nome" class="help-block"></span>
+		        </div>	
+				<div class="col-md-10 nopadding">
+					<div class="col-md-7 nopadding" style="width: 66% !important;" >
+						<label>Privilégios: <a class="glyphicon glyphicon-question-sign" rel="tooltip" data-container="body" data-placement="bottom" title="Selecione os privilégios do perfil na caixa abaixo"></a></label>
+					</div>
+					<div id="form-group-privileges">
+						<label>Privilégios selecionados: <a class="glyphicon glyphicon-question-sign" rel="tooltip" data-container="body" data-placement="bottom" title="Desmarque os privilégios escolhidos na caixa abaixo"></a></label>
+						<span id="help-block-privileges" class="help-block"></span>
+					</div>
+				</div>
+				<select name="privileges[]" id='multiSelectPrivileges' multiple='multiple'>
+    				<?php
+					if (! empty ( $this->privileges )) {
+						foreach ( $this->privileges as $privilege ) {
+							if($privilege->res->name = "Administração"){ // Privilégios de admin(Resource Administração) não são listados
+					?>
+						<option value="<?php echo $privilege->priId; ?>" <?php $this->privilegeIds && in_array($privilege->priId, $this->privilegeIds)?print 'selected ':''?>><?php echo $privilege->name; ?></option>
+                        <?php
+							}
+						}
+					}
+				?>
+				</select>
+				<p><a class="pull-right" href="javascript:deselectAll();" rel="tooltip" data-container="body" data-placement="bottom" title="Desmarcar todos os privilégios escolhidos">Desmarcar todos</a></p>
+				<br />
+				<input type="hidden" value="<?php $this->role?print $this->role->rolId:'' ?>" id="id" name="id"/>
+
+				<button type="submit" id="btn-submit" class="btn btn-primary" rel="tooltip" data-container="body" data-placement="bottom" title="Salvar" onclick="return validateForm(createPerfilForm)">Salvar</button>
+				<br />
+				<br />
+				<a class="btn btn-primary"
+					href="<?php echo $this->basePath(); ?>/role" rel="tooltip" data-container="body" data-placement="bottom" title="Voltar para a lista de perfis">Listar perfis</a>
+			</div>
+		</div>
+	</div>
+</form>

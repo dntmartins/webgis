@@ -1,0 +1,15 @@
+/* tables */
+thead.sortable tr .header {
+	background-image: url(/img/bg.gif);
+	background-repeat: no-repeat;
+	background-position: center right;
+	cursor: pointer;
+}
+
+thead.sortable tr .headerSortUp {
+	background-image: url(/img/asc.gif);
+}
+thead.sortable tr .headerSortDown {
+	background-image: url(/img/desc.gif);
+}
+

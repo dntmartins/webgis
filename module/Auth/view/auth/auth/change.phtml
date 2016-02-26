@@ -1,0 +1,84 @@
+<?php
+$form = $this->changePasswordForm;
+$msg_sucesso = $this->msg_sucesso; // Mensagem de sucesso caso o arquivo seja enviado.
+$form->setAttribute ( 'action', $this->basePath () . $this->url ( 'auth', // Nome da rota ...
+array (
+		'controller' => 'auth',
+		'action' => 'change' 
+) ) );
+?>
+
+<div class="container">
+	<div class="row clearfix">
+		<div class="col-md-12 column">
+			<div id="sending_loading" style="display: none; text-align: center;">
+				<img alt="loading..."
+					src="<?php echo $this->basePath(); ?>/img/ajax-loader.gif">
+			</div>
+		<?php
+		if (! $msg_sucesso) { // caso não exista mensagem de sucesso, exibe form, senão exibe apenas botão fechar e a mensagem de sucesso
+			echo $this->form ()->openTag ( $form );
+			?>
+			<div class="row clearfix">
+				<div class="col-md-12 column">
+					<div class="form-group">
+						
+							<?php
+			if (($this->formElementErrors ( $form->get ( 'passwordOld' ) )) != null || ($this->formElementErrors ( $form->get ( 'passwordNew1' ) )) != null || ($this->formElementErrors ( $form->get ( 'passwordNew2' ) )) != null) {
+				
+				echo "<div class='alert alert-danger' role='alert'>";
+				if (($this->formElementErrors ( $form->get ( 'passwordOld' ) )) != null) {
+					echo "<strong>Senha atual:</strong>" . $this->formElementErrors ( $form->get ( 'passwordOld' ) );
+				}
+				if (($this->formElementErrors ( $form->get ( 'passwordNew1' ) )) != null) {
+					echo "<strong>Nova senha:</strong>" . $this->formElementErrors ( $form->get ( 'passwordNew1' ) );
+				}
+				if (($this->formElementErrors ( $form->get ( 'passwordNew2' ) )) != null) {
+					echo "<strong>Confirmação:</strong>" . $this->formElementErrors ( $form->get ( 'passwordNew2' ) );
+				}
+				echo "</div>";
+			}
+			?>
+						</div>
+					<div class="page-header">
+						<h3>Alteração de senha</h3>
+						<span class="help-block">A nova senha deve conter no mínimo 6
+							caracteres e não possuir caracteres em branco.</span>
+					</div>
+
+					<div class="col-xs-3">
+						<p>
+							<label for="passwordOld">Senha atual</label><?php echo $this->formRow($form->get('passwordOld'));?></p>
+
+						<p>
+							<label for="passwordNew1">Nova senha</label> <?php echo $this->formRow($form->get('passwordNew1'));?></p>
+
+						<p>
+							<label for="passwordNew2">Confirmação</label><?php echo $this->formRow($form->get('passwordNew2'));?></p>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="col-md-12 column">
+				<?php
+			echo $this->formSubmit ( $form->get ( 'submit' ) );
+			?>	
+				<button type="button" class="btn btn-default"
+				onClick="javascript:window.location.href='<?php echo $this->basePath();?>/workspace'">Cancelar</button>
+			<i id="loading" class="fa fa-cog fa-spin fa-1x fa-fw margin-bottom"
+				style="display: none;"></i>
+		</div>			
+			<?php
+			echo $this->form ()->closeTag ();
+			// echo $this->formFileSessionProgress (); // Barra de Progresso
+		} else {
+			echo $msg_sucesso;
+			?>
+			<button type="button" class="btn btn-default"
+			onClick="javascript:window.location.href='<?php echo $this->basePath();?>/'">Voltar</button>
+			
+		<?php
+		}
+		?>
+		</div>
+</div>

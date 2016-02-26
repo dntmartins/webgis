@@ -1,0 +1,155 @@
+<div class="container">
+	<h2 class="text-center">Configurações de conta</h2>
+	<div class="row clearfix">
+		<div class="col-md-12 column">
+			<div class="row clearfix">
+				<div class="col-md-12 column">
+					<div class="form-group">
+						<?php
+						$flash = $this->flashMessenger ();
+						$flash->setMessageOpenFormat ( '<div%s>
+							<button type="button" class="close" data-dismiss="alert" aria-hidden="true">
+							    &times;
+							</button>
+							<div>' )->setMessageCloseString ( '</div></div>' );
+						
+						echo $flash->render ( 'error-user-config', array (
+								'alert',
+								'alert-dismissable',
+								'alert-danger',
+								'alert-messages',
+								'flash-messages'
+								
+						) );
+						echo $flash->render ( 'info-user-config', array (
+								'alert',
+								'alert-dismissable',
+								'alert-info',
+								'alert-messages',
+								'flash-messages'
+						) );
+						echo $flash->render ( 'default-user-config', array (
+								'alert',
+								'alert-dismissable',
+								'alert-warning',
+								'alert-messages',
+								'flash-messages'
+						) );
+						echo $flash->render ( 'success-user-config', array (
+								'alert',
+								'alert-dismissable',
+								'alert-success',
+								'alert-messages',
+								'flash-messages'
+						) );
+						?>
+					</div>
+				</div>
+				<?php 
+				$class1 = "";
+				$class2 = "active";
+				$isActive = array_fill ( 0, 2, $class1 );
+				if(isset($this->active_menu)){
+					$isActive [$this->active_menu] = $class2;
+				}else{
+					$isActive [0] = $class2;
+				}
+				?>
+				<ul class="nav nav-tabs">
+					<li class="<?php echo $isActive[0] ?>" onclick="selectMenu(0)"><a data-toggle="tab" href="#menu0">Editar usuário</a></li>
+					<li class="<?php echo $isActive[1] ?>" onclick="selectMenu(1)"><a data-toggle="tab" href="#menu1">Alterar senha</a></li>
+				</ul>
+
+				<div class="tab-content">
+					<div id="menu0" class="tab-pane fade <?php echo $isActive[0] ?> in" >
+						<h3>Editar usuário</h3>
+						<span class="help-block">Editar informações do seu usuário</span>
+						<br>
+						<form class="form-horizontal" id="form" method="post" action="/configurations/editUser">
+
+							<div id="form-group-nome" class="form-horizontal">
+								<label for="nome-input">Nome </label> 
+								<input id="nome-input" type="text" class="form-control" name="name" 
+										placeholder="Nome do usuário" value="<?php $this->name?print $this->name:''?>"> 
+								  <span id="help-block-nome" class="help-block"></span>
+							</div>
+							
+							<div id="form-group-email" class="form-horizontal">
+								<label for="email-input">Email </label> 
+								<input id="email-input" type="text" class="form-control" name="email" 
+										placeholder="Novo Email" value="<?php $this->email?print $this->email:''?>"> 
+		            			<span id="help-block-email" class="help-block"></span>
+							</div>
+							
+							<div id="form-group-email2" class="form-horizontal">
+								<label for="email2-input">Email (Repetir) </label> 
+								<input id="email2-input" type="text" class="form-control" name="email2"
+										placeholder="Confirme o Email" value="<?php $this->email?print $this->email:''?>">
+								<span id="help-block-email2" class="help-block"></span>
+							</div>
+							<br />
+							<button type="submit" class="btn btn-primary" 
+								 	onclick="return validateForm(userConfigurationForm)"
+								 	data-container="body" data-placement="bottom"
+									title="Enviar alterações">Alterar
+							</button>
+							
+							<input type="hidden" value="<?php $this->id?print $this->id:'' ?>" id="id" name="id"/>
+								
+								 
+							<input type="reset" class="btn btn-default" 
+								data-container="body" data-placement="bottom"
+								title="Limpa todos os campos do formulário" value="Limpar alterações">
+							<i id="loading1"
+							class="fa fa-cog fa-spin fa-1x fa-fw margin-bottom"
+							style="display: none;"></i>
+								
+							<br /> <br />
+						</form>
+					</div>
+					<div id="menu1" class="tab-pane fade <?php echo $isActive[1] ?> in">
+						<h3>Alterar senha</h3>
+						<span class="help-block">A nova senha deve conter no mínimo 6
+							caracteres e não possuir caracteres em branco.</span> <br>
+						<form action="/configurations/changePassword" method="post">
+						
+							<div id="form-group-passwordOld" class="form-horizontal">
+					            <label for="passwordOld">Senha atual: </label>
+					            <input id="passwordOld" type="password" name="password" class="form-control" placeholder="Senha&#x20;atual" value="">
+					            <span id="help-block-passwordOld" class="help-block"></span>
+		        			</div>
+		        			
+		        			<div id="form-group-passwordNew1" class="form-horizontal">
+					            <label for="passwordNew1">Nova senha: </label>
+					            <input id="passwordNew1" type="password" name="passwordNew1" class="form-control" placeholder="Nova&#x20;senha" value="">
+					            <span id="help-block-passwordNew1" class="help-block"></span>
+		        			</div>
+		        			
+		        			
+		        			<div id="form-group-passwordNew2" class="form-horizontal">
+					            <label for="passwordNew2">Nova senha (Repetir): </label>
+					            <input id="passwordNew2" type="password" name="passwordNew2" class="form-control" 
+					            placeholder="Confirme&#x20;a&#x20;senha" value="">
+					            <span id="help-block-passwordNew2" class="help-block"></span>
+		        			</div>
+		 
+							<br>
+							<button type="submit" class="btn btn-primary" 
+								 	onclick="return validateForm(userChangePasswordForm)"
+								 	data-container="body" data-placement="bottom"
+									title="Enviando para o servidor...">Enviar
+							</button>
+
+							<button class="btn btn-default"
+								onclick="javascript:window.location.href='/workspace'"
+								type="button">Cancelar</button>
+							<i id="loading2"
+								class="fa fa-cog fa-spin fa-1x fa-fw margin-bottom"
+								style="display: none;"></i>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

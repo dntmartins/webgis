@@ -1,0 +1,91 @@
+<div class="userForms">
+       <h1 class="text-center"><?php $this->prj?print 'Edição de projeto':print 'Criação de projeto'?></h1>
+       <br />
+			<div id="form-group-nome" class="form-group">
+	            <label for="nome-input">Nome: </label>
+	            <input id="nome-input" type="text" class="form-control" name="name" placeholder="Nome do projeto" value="<?php $this->prj?print $this->prj->projectName:''?>" autofocus>
+            <span id="help-block-nome" class="help-block"></span>
+        </div>
+        <div id="form-group-descricao" class="form-group">
+        	<label for="descricao-input">Descrição: </label>
+        	<textarea id='description' name='description' placeholder='Descrição completa'>
+        		<?php $this->prj?print $this->prj->description:'' ?>
+        	</textarea>
+        	<span id="help-block-link" class="help-block"></span>
+        	
+        </div>
+        <div id="form-group-link" class="form-group">
+            <label for="link-input">Link: </label>
+            <input id="link-input" type="text" class="form-control" name="link" placeholder="Link" value="<?php $this->prj?print $this->prj->link:''?>">
+            <span id="help-block-link" class="help-block"></span>
+        </div>
+       
+       <?php if (!$this->prj) {?> 
+        <div id="form-group-sld" class="form-group">
+		<br /> <span class="lead">Seleção de arquivo de estilo para envio
+			(Opcional)</span><span id="help-block-link" class="help-block"></span>
+			
+			<label for="sld"> <a class="btn btn-default"
+				title="Enviar sld para o servidor."> <span
+					class="glyphicon glyphicon-upload"></span> Escolher arquivo
+			</a>
+			</label> <label id="sldName"></label> <br /> <small>Escolha um
+				arquivo .sld</small> <input style="display: none" type="file"
+				id="sld" name="sldUpload" onchange="showSldFileName()" > <br /> <br /> <i
+				id="loadingSld"
+				class="fa fa-cog fa-spin fa-1x fa-fw margin-bottom"
+				style="display: none;"></i>
+				
+			<span id="help-block-link" class="help-block"></span>
+		</div>	
+		<?php } ?>
+		<div class="form-group">
+			<label>Logo do projeto:</label>
+		</div>
+       <div id="form-group-logoView" class="form-group">		        	
+        	<img class="thumbnail" id="logoImg" height="200" width="250" style="<?php $this->prj? print '' : print'display: none;'?>" src="<?php $this->prj? print "/project/getLogo?id=".$prj->prjId : print '' ?>" alt="LOGO" />	
+        	<span id="help-block-link" class="help-block"></span>
+        </div>
+        <div id="form-group-logo" class="form-group">
+            <label class="pull-left" for="image"> 
+				<span class="btn btn-default">
+				<span class="glyphicon glyphicon-upload"></span> 
+				Enviar logo</span> 
+				<label id="uploadLogoLabel"></label>
+			</label>
+			<input id="image" type="file" name="image" style="display: none;" onchange="showUploadImageName()" />
+			<span id="help-block-link" class="help-block"></span>
+        </div>
+	<br />
+	<br />
+	<br />
+	<a id="btnAddProject" class="btn btn-primary" rel="tooltip" data-container="body" data-placement="bottom" title="Salvar" href="javascript:addProject()">Salvar</a>
+	<i id="loading" class="fa fa-cog fa-spin fa-1x fa-fw margin-bottom" style="display: none;"></i>
+	<br /><br />
+	<input type="hidden" value="<?php $this->prj?print $this->prj->prjId:'' ?>" id="id" name="id"/>
+	<a rel="tooltip" data-container="body" data-placement="bottom" title="Voltar para a lista de projetos" class="btn btn-primary" href="<?php echo $this->basePath(); ?>/project">Listar projetos</a>
+	<br />
+	<br />
+    <p><small>*Todos os campos são obrigatórios</small></p>
+</div>
+<script src='//cdn.ckeditor.com/4.4.6/standard/ckeditor.js'></script>
+<script type='text/javascript'>
+CKEDITOR.replace('description',{
+	language:'pt-br'});
+
+$(function () {
+    $("#image").change(function () {
+        if (this.files && this.files[0]) {
+            var reader = new FileReader();
+            reader.onload = imageIsLoaded;
+            reader.readAsDataURL(this.files[0]);
+        }
+    });
+});
+
+function imageIsLoaded(e) {
+    $('#logoImg').attr('src', e.target.result);
+    $('#logoImg').show();
+};
+
+</script>
