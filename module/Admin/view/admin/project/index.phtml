@@ -22,13 +22,13 @@
 		    	foreach($this->projects as $project):
 		    ?>
 				    <tr>
-						<td class="<?php !$project->active?print 'link-disable':'' ?>"><?php echo $project->projectName; ?></td>
-						<td class="<?php !$project->active?print 'link-disable':'' ?>"><?php echo $project->description; ?></td>
-						<td class="<?php !$project->active?print 'link-disable':'' ?>"><?php echo $project->link; ?></td>
+						<td id="prjName<?php echo $project->prjId ?>" class="<?php !$project->active?print 'link-disable':'' ?>"><?php echo $project->projectName; ?></td>
+						<td id="prjDesc<?php echo $project->prjId ?>" class="<?php !$project->active?print 'link-disable':'' ?>"><?php echo $project->description; ?></td>
+						<td id="prjLink<?php echo $project->prjId ?>" class="<?php !$project->active?print 'link-disable':'' ?>"><?php echo $project->link; ?></td>
 						<td>
-							<a class="glyphicon glyphicon-globe <?php !$project->active?print 'link-disable':'' ?>" href='javascript:getPublish(<?php echo $project->prjId ?>);' rel="tooltip" data-container="body" data-placement="bottom" title="Publicar"></a>
-							<a class="glyphicon glyphicon-edit <?php !$project->active?print 'link-disable':'' ?>" href='<?php echo $this->basePath()."/project/form?id=".$project->prjId; ?>' rel="tooltip" data-container="body" data-placement="bottom" title="Modificar informações do projeto"></a>
-							<a class="glyphicon <?php $project->active?print ' glyphicon-ban-circle ':print ' glyphicon-ok-circle' ?>" <?php $project->active?print "href='javascript:disableProject($project->prjId, \"$this->basePath/project/disable\");'":print "href='javascript:enableProject($project->prjId, \"$this->basePath/project/enable\");'" ?> rel="tooltip" data-container="body" data-placement="bottom" title="<?php $project->active?print 'Desativar projeto':print 'Ativar projeto' ?>"></a>
+							<a id="publishPrjBtn<?php echo $project->prjId ?>" class="glyphicon glyphicon-globe <?php !$project->active?print 'link-disable':'' ?>" href='javascript:getPublish(<?php echo $project->prjId ?>);' rel="tooltip" data-container="body" data-placement="bottom" title="Publicar"></a>
+							<a id="editPrjBtn<?php echo $project->prjId ?>" class="glyphicon glyphicon-edit <?php !$project->active?print 'link-disable':'' ?>" href='<?php echo $this->basePath()."/project/form?id=".$project->prjId; ?>' rel="tooltip" data-container="body" data-placement="bottom" title="Modificar informações do projeto"></a>
+							<a id="enableDisablePrjBtn<?php echo $project->prjId ?>" class="glyphicon <?php $project->active?print ' glyphicon-ban-circle ':print ' glyphicon-ok-circle' ?>" <?php $project->active?print "href='javascript:disableProject(".$project->prjId.", \"".$this->basePath()."/project/disable\");'":print "href='javascript:enableProject(".$project->prjId.", \"".$this->basePath()."/project/enable\");'" ?> rel="tooltip" data-container="body" data-placement="bottom" title="<?php $project->active?print 'Desativar projeto':print 'Ativar projeto' ?>"></a>
 						</td>
 					</tr>
 		    <?php 

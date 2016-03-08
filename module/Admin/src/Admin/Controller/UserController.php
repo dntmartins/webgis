@@ -12,6 +12,7 @@ use Zend\Validator\StringLength;
 use Zend\I18n\Validator\PhoneNumber;
 use Zend\I18n\Validator\Zend\I18n\Validator;
 use Main\Controller\MainController;
+use Main\Helper\LogHelper;
 
 class UserController extends MainController {
 	public function indexAction() {
@@ -34,6 +35,7 @@ class UserController extends MainController {
 			}
 			return $this->showMessage('Você precisa fazer o login para realizar essa operação', 'home-error', '/');
 		} catch ( \Exception $e ) {
+			LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage() ."- Linha: " . __LINE__);
 			return $this->showMessage('Não foi possível recuperar os usuários cadastrados', 'home-error', '/');
 		}
 	}
@@ -65,11 +67,17 @@ class UserController extends MainController {
 						
 						if (!$us){
 							$us = new User ();
+						}else{
+							LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: Variável us vazia. - Linha: " . __LINE__);		
 						}
 						
 						$nameLengthValidator = new StringLength ( array (
 							'min' => 4,
 							'max' => 50
+						) );
+						$loginLengthValidator = new StringLength ( array (
+								'min' => 4,
+								'max' => 10
 						) );
 						$passwordLengthValidator = new StringLength ( array (
 							'min' => 6,
@@ -81,6 +89,13 @@ class UserController extends MainController {
 							$us->name = $name;
 						else {
 							return $this->showMessage('O campo nome é obrigatório e deve conter no minimo 4 e no máximo 50 caracteres', 'admin-error', $url);
+						}
+						
+						$login = trim($formData['login']);
+						if ($loginLengthValidator->isValid($login))
+							$us->login = $login;
+						else {
+							return $this->showMessage('O campo login é obrigatório e deve conter no minimo 4 e no máximo 10 caracteres', 'admin-error', $url);
 						}
 						
 						$email = trim ( $formData ['email'] );
@@ -100,6 +115,8 @@ class UserController extends MainController {
 							else {
 								return $this->showMessage('A senha deve conter no minimo 6 e no máximo 20 caracteres', 'admin-error', $url);
 							}
+						}else{
+							LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: Variável password vazia. - Linha: " . __LINE__);		
 						}
 						
 						$roleId = $formData ['role'];
@@ -135,11 +152,12 @@ class UserController extends MainController {
 			}
 			return $this->showMessage('Você precisa fazer o login para realizar essa operação', 'home-error', '/');
 		} catch ( \Exception $e ) {
+			LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage() ."- Linha: " . __LINE__);
 			return $this->showMessage('Não foi possível realizar essa operação', 'home-error', '/');
 		}
 	}
 	public function associateProjectsAction() {
-		try {
+		try {				
 			$request = $this->getRequest ();
 			if ($this->verifyUserSession ()) {
 				$serviceLocator = $this->getServiceLocator ();
@@ -209,6 +227,7 @@ class UserController extends MainController {
 								return $this->showMessage('Selecione um usuário e pelo menos um subprojeto', 'admin-error', $url);
 							}
 						} catch ( \Exception $e ) {
+							LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage() ."- Linha: " . __LINE__);
 							return $this->showMessage('Não foi possível associar o usuário aos subprojetos.', 'admin-error', $url);
 						}
 					}
@@ -222,6 +241,7 @@ class UserController extends MainController {
 			}
 			return $this->showMessage('Você precisa fazer o login para realizar essa operação', 'home-error', '/');
 		} catch ( \Exception $e ) {
+			LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage() ."- Linha: " . __LINE__);
 			return $this->showMessage('Não foi possível associar o usuário aos subprojetos.', 'home-error', '/');
 		}
 	}
@@ -239,31 +259,34 @@ class UserController extends MainController {
 					$accessService = $serviceLocator->get ( 'Storage\Service\AccessService' );
 					$user = $userService->getById ( $user_id );
 					if ($userService->setActive ( $user, 0 )) {
-						$this->showMessage('O usuário foi desativado com sucesso!', 'admin-success');
 						$response->setContent ( \Zend\Json\Json::encode ( array (
 								'status' => true,
-								'isLogged' => true
+								'msg' => 'O usuário foi desativado com sucesso!',
+								'userId' => $user_id
 						) ) );
 						return $response;
 					} else {
-						$this->showMessage('Não foi possível desativar o usuário', 'admin-error');
 						$response->setContent ( \Zend\Json\Json::encode ( array (
 								'status' => false,
-								'isLogged' => true
+								'msg' => 'Não foi possível desativar o usuário'
 						) ) );
 						return $response;
 					}
 				}
-				$this->showMessage('Você não possui permissões para realizar essa operação.', 'home-error');
-				$response->setContent ( \Zend\Json\Json::encode ( array ('status' => false, 'isLogged' => true) ) );
+				$response->setContent ( \Zend\Json\Json::encode ( array (
+						'status' => false,
+						'msg' => 'Você não possui permissões para realizar essa operação'
+				)));
 				return $response;
 			}
-			$this->showMessage('Você precisa fazer o login para realizar essa operação', 'home-error');
-			$response->setContent ( \Zend\Json\Json::encode ( array ('status' => false, 'isLogged' => false) ) );
+			$response->setContent ( \Zend\Json\Json::encode ( array (
+					'status' => false,
+					'msg' => 'Você precisa fazer o login para realizar essa operação'
+			) ) );
 			return $response;
 		} catch ( \Exception $e ) {
-			$this->showMessage('Não foi possível desativar o usuário', 'admin-error');
-			$response->setContent ( \Zend\Json\Json::encode ( array ('status' => false, 'isLogged' => true) ) );
+			LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage() ."- Linha: " . __LINE__);
+			$response->setContent ( \Zend\Json\Json::encode ( array ('status' => false, 'msg' => 'Não foi possível desativar o usuário') ) );
 			return $response;
 		}
 	}
@@ -283,34 +306,35 @@ class UserController extends MainController {
 					$accessService = $serviceLocator->get ( 'Storage\Service\AccessService' );
 					$user = $userService->getById ( $user_id );
 					if ($user && $userService->setActive( $user, 1 )) {
-						$this->showMessage('O usuário foi ativado com sucesso!', 'admin-success');
 						$response->setContent ( \Zend\Json\Json::encode ( array (
 							'status' => true,
-							'isLogged' => true
+							'msg' => 'O usuário foi ativado com sucesso!',
+							'userId' => $user_id
 						) ) );
 						return $response;
 					} else {
-						$this->showMessage('Não foi possível ativar o usuário', 'admin-error');
 						$response->setContent ( \Zend\Json\Json::encode ( array (
 							'status' => false,
-							'isLogged' => true
+							'msg' => 'Não foi possível ativar o usuário'
 						) ) );
 						return $response;
 					}
 				}
-				$this->showMessage('Você não possui permissões para realizar essa operação.', 'home-error');
-				$response->setContent ( \Zend\Json\Json::encode ( array ('status' => false, 'isLogged' => true) ) );
+				$response->setContent ( \Zend\Json\Json::encode ( array (
+						'status' => false,
+						'msg' => 'Você não possui permissões para realizar essa operação'
+				)));
 				return $response;
 			}
-			$this->showMessage('Você precisa fazer o login para realizar essa operação', 'home-error');
-			$response->setContent ( \Zend\Json\Json::encode ( array ('status' => false, 'isLogged' => false) ) );
+			$response->setContent ( \Zend\Json\Json::encode ( array (
+					'status' => false,
+					'msg' => 'Você precisa fazer o login para realizar essa operação'
+			) ) );
 			return $response;
 		} catch ( \Exception $e ) {
+			LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage() ."- Linha: " . __LINE__);
 			$this->showMessage('Não foi possível ativar o usuário', 'admin-error');
-			$response->setContent ( \Zend\Json\Json::encode ( array (
-				'status' => false,
-				'isLogged' => true
-			) ) );
+			$response->setContent ( \Zend\Json\Json::encode ( array ('status' => false, 'msg' => 'Não foi possível ativar o usuário') ) );
 			return $response;
 		}
 	}
@@ -351,6 +375,7 @@ class UserController extends MainController {
 			$response->setContent ( \Zend\Json\Json::encode ( array ('status' => false, 'isLogged' => false) ) );
 			return $response;
 		} catch ( \Exception $e ) {
+			LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage() ."- Linha: " . __LINE__);
 			$response->setContent ( \Zend\Json\Json::encode ( array (
 					'status' => false,
 					'isLogged' => true
@@ -380,20 +405,46 @@ class UserController extends MainController {
 						$userId = $formData ['id'];
 						$user = $userService->getById ( $userId );
 					
-						$assocAccess = $accessService->getPrjByUser($user);
-						$prjs = $accessService->getPrjs($user);
-					}
-					
-					if ($assocAccess) {
-						$assocPrjs = array ();
-						foreach ( $assocAccess as $access ) {
-							array_push ( $assocPrjs, $access->prjId );
+						if($user){
+							$assocAccess = $accessService->getPrjByUser($user);
+							if(is_array($assocAccess)){
+								$assocPrjs = array ();
+								if(count($assocAccess) > 0){
+									foreach ( $assocAccess as $access ) {
+										array_push ( $assocPrjs, $access->prjId );
+									}
+								}
+// 								$prjs = $accessService->getPrjs($user);
+// 								if(is_array($prjs)){
+// 									$prjsToDisable = array();
+// 									if(count($prjs) > 0){
+// 										foreach ($prjs as $prj){
+// 											array_push($prjsToDisable, $prj->prjId);
+// 										}
+// 									}
+// 								}
+// 								else{
+// 									$response->setContent ( \Zend\Json\Json::encode ( array (
+// 											'status' => false,
+// 											'msg' => 'Não foi possível recuperar os projetos associados a este usuário.'
+// 									) ) );
+// 									return $response;
+// 								}
+							}
+							else{
+								$response->setContent ( \Zend\Json\Json::encode ( array (
+											'status' => false,
+											'msg' => 'Não foi possível recuperar os projetos associados a este usuário.'
+									) ) );
+								return $response;
+							}
 						}
-					}
-					if($prjs){
-						$prjsToDisable = array();
-						foreach ($prjs as $prj){
-							array_push($prjsToDisable, $prj->prjId);
+						else{
+							$response->setContent ( \Zend\Json\Json::encode ( array (
+											'status' => false,
+											'msg' => 'Não foi possível recuperar os projetos associados a este usuário.'
+									) ) );
+							return $response;
 						}
 					}
 					$response->setContent ( \Zend\Json\Json::encode ( array (
@@ -404,17 +455,22 @@ class UserController extends MainController {
 					) ) );
 					return $response;
 				}
-				$this->showMessage('Você não possui permissões para realizar essa operação.', 'home-error');
-				$response->setContent ( \Zend\Json\Json::encode ( array ('status' => false, 'isLogged' => true)));
+				$response->setContent ( \Zend\Json\Json::encode ( array (
+							'status' => false,
+							'msg' => 'Você não possui permissões para realizar essa operação.'
+					) ) );
 				return $response;
 			}
-			$this->showMessage('Você precisa fazer o login para realizar essa operação', 'home-error');
-			$response->setContent ( \Zend\Json\Json::encode ( array ('status' => false, 'isLogged' => false) ) );
+			$response->setContent ( \Zend\Json\Json::encode ( array (
+					'status' => false,
+					'msg' => 'Você precisa fazer o login para realizar essa operação'
+			) ) );
 			return $response;
 		} catch ( \Exception $e ) {
+			LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage() ."- Linha: " . __LINE__);
 			$response->setContent ( \Zend\Json\Json::encode ( array (
-				'status' => false ,
-				'isLogged' => true
+				'status' => false,
+				'msg' => 'Não foi possível recuperar os projetos'
 			) ) );
 			return $response;
 		}

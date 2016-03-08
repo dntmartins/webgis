@@ -3,6 +3,7 @@ function ValidateRegex() {
 	this.passwordRegex = /^[a-z0-9_-]{6,20}$/; //match password
 	this.characterRegex = /^[a-zA-Zà-úÀ-Ú0-9'. \\s]{4,50}$/;
 	this.lengthRegex = /^.{4,50}$/;
+	this.loginLengthRegex = /^.{4,50}$/;
 	this.lengthPassRegex = /^.{6,20}$/;
 }
 
@@ -62,6 +63,7 @@ function messagesJsonLog(input, name, urlCall){
     var passwordRegex = regex.passwordRegex;
 	var characterRegex = regex.characterRegex;
 	var lengthRegex = regex.lengthRegex;
+	var loginLengthRegex = regex.loginLengthRegex;
 	var lengthPassRegex = regex.lengthPassRegex;
 	
     var hasError = "";
@@ -108,6 +110,14 @@ function messagesJsonLog(input, name, urlCall){
         }else if(name === "Nome"){
         	if(!lengthRegex.test(input)){
         		msgWarning = "O campo "+name+" deve conter no mínimo 4 e no máximo 50 caracteres";
+        		hasError = true;
+        	}else{
+        		msgWarning = "";
+        		hasError = false;
+        	}
+        }else if(name === "Login"){
+        	if(!loginLengthRegex.test(input)){
+        		msgWarning = "O campo "+name+" deve conter no mínimo 4 e no máximo 10 caracteres";
         		hasError = true;
         	}else{
         		msgWarning = "";

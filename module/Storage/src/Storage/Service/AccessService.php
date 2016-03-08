@@ -4,11 +4,12 @@ namespace Storage\Service;
 use Doctrine\ORM\EntityManager;
 use Storage\Entity\Configurator;
 use Doctrine\ORM\Query\ResultSetMapping;
+use Main\Helper\LogHelper;
+
 class AccessService extends AbstractService {
     public function __construct(EntityManager $em) {
         parent::__construct($em);
         $this->entity = "Storage\Entity\Access";
-        $this->fixedCoordinatorId = 4;// identificação da Role "Coordenador geral(requisições)" 
     }
     
     public function addAll($accessList){
@@ -19,14 +20,17 @@ class AccessService extends AbstractService {
 	    	try {
 	    		$resultExec = $conn->exec($sql);
 	    	}catch (\Doctrine\DBAL\DBALException $dbalExc){
+	    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$dbalExc->getMessage()." Linha: " . __LINE__);
 	    		return false;
 	    	}catch (\Exception $e){
+	    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);
 	    		return false;
 	    	}
     	}
     	try {
     		return true;
     	}catch (\Doctrine\DBAL\ConnectionException $e){
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);
     		return false;
     	}
     }
@@ -48,6 +52,7 @@ class AccessService extends AbstractService {
         	$rsm->addFieldResult('us','use_id','useId');
         	$rsm->addMetaResult("us", "rol_id", "rol_id");
         	$rsm->addFieldResult('us','name','name');
+        	$rsm->addFieldResult('us','login','login');
         	$rsm->addFieldResult('us','last_access','lastAccess');
         	$rsm->addFieldResult('us','active','active');
         	 
@@ -56,6 +61,7 @@ class AccessService extends AbstractService {
         	$this->em->clear();
         	return $access;
     	}catch (\Exception $e){
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);
     	    return null;
     	}
     }
@@ -85,6 +91,7 @@ class AccessService extends AbstractService {
         	$this->em->clear();
         	return $access;
     	}catch (\Exception $e){
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);
     	    return null;
     	}
     }
@@ -98,8 +105,10 @@ class AccessService extends AbstractService {
     		$conn->exec($sql);
     		return true;
     	}catch (\Doctrine\DBAL\DBALException $dbalExc){
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$dbalExc->getMessage()." Linha: " . __LINE__);
     		return false;
     	}catch (\Exception $e){
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);
     		return false;
     	}
     }
@@ -122,6 +131,7 @@ class AccessService extends AbstractService {
     		$this->em->clear();
     		return $access;
     	}catch (\Exception $e){
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);
     		return null;
     	}
     }

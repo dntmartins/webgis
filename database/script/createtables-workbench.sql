@@ -2,7 +2,7 @@ SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL,ALLOW_INVALID_DATES';
 
-CREATE SCHEMA IF NOT EXISTS `GEODATA` DEFAULT CHARACTER SET latin1 ;
+CREATE SCHEMA IF NOT EXISTS `GEODATA` DEFAULT CHARACTER SET utf8;
 USE `GEODATA` ;
 
 -- -----------------------------------------------------
@@ -37,6 +37,7 @@ CREATE TABLE IF NOT EXISTS `GEODATA`.`geoserver` (
     REFERENCES `GEODATA`.`project` (`prj_id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
+DEFAULT CHARACTER SET = utf8
 ENGINE = InnoDB;
 
 -- -----------------------------------------------------
@@ -48,7 +49,7 @@ CREATE TABLE IF NOT EXISTS `GEODATA`.`role` (
   `is_admin` TINYINT(1) NOT NULL DEFAULT '0',
   PRIMARY KEY (`rol_id`))
 ENGINE = InnoDB
-AUTO_INCREMENT = 11
+AUTO_INCREMENT = 0
 DEFAULT CHARACTER SET = utf8;
 
 
@@ -60,6 +61,7 @@ CREATE TABLE IF NOT EXISTS `GEODATA`.`user` (
   `rol_id` INT(11) NOT NULL,
   `name` VARCHAR(255) NOT NULL,
   `email` VARCHAR(255) NOT NULL,
+  `login` VARCHAR(255) NOT NULL,
   `password` VARCHAR(255) NOT NULL,
   `last_access` DATETIME NULL DEFAULT NULL,
   `reset_token` VARCHAR(255) NULL DEFAULT NULL,
@@ -173,7 +175,7 @@ CREATE TABLE IF NOT EXISTS `GEODATA`.`role_privilege` (
   CONSTRAINT `fk_role_id`
     FOREIGN KEY (`rol_id`)
     REFERENCES `GEODATA`.`role` (`rol_id`)
-    ON DELETE NO ACTION
+    ON DELETE CASCADE
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
 AUTO_INCREMENT = 0
@@ -191,6 +193,7 @@ CREATE TABLE IF NOT EXISTS `GEODATA`.`datasource` (
   `login` VARCHAR(255) NOT NULL,
   `password` VARCHAR(45) NOT NULL,
   PRIMARY KEY (`data_id`))
+DEFAULT CHARACTER SET = utf8
 ENGINE = InnoDB;
 
 
@@ -203,7 +206,7 @@ CREATE TABLE IF NOT EXISTS `GEODATA`.`layer` (
   `prj_id` INT(11) NOT NULL,
   `datasource_id` INT(11) NOT NULL,
   `official` TINYINT(1) NOT NULL,
-  `publicacao_oficial` DATETIME NULL,
+  `publicacao_oficial` DATE NULL,
   `projection` INT NOT NULL,
   PRIMARY KEY (`layer_id`),
   INDEX `fk_layer_project1_idx` (`prj_id` ASC),
@@ -223,6 +226,7 @@ CONSTRAINT `fk_layer_sld`
     REFERENCES `GEODATA`.`sld` (`sld_id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
+DEFAULT CHARACTER SET = utf8
 ENGINE = InnoDB;
 
 
@@ -238,6 +242,7 @@ CREATE TABLE IF NOT EXISTS `GEODATA`.`sld` (
   `admin_uploaded` TINYINT(1) NOT NULL,
   PRIMARY KEY (`sld_id`)
 )
+DEFAULT CHARACTER SET = utf8
 ENGINE = InnoDB;
 
 

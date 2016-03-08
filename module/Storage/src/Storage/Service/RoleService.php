@@ -3,7 +3,7 @@
 namespace Storage\Service;
 
 use Doctrine\ORM\EntityManager;
-
+use Main\Helper\LogHelper;
 class RoleService extends AbstractService {
 
     public function __construct(EntityManager $em) {
@@ -17,9 +17,11 @@ class RoleService extends AbstractService {
     		$conn->exec ( $sql );
     		return true;
     	} catch ( \Doctrine\DBAL\DBALException $dbalExc ) {
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$dbalExc->getMessage()." Linha: " . __LINE__);
     		$conn->rollBack ();
     		return false;
     	} catch ( \Exception $e ) {
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);
     		$conn->rollBack ();
     		return false;
     	}
@@ -37,9 +39,11 @@ class RoleService extends AbstractService {
     		$conn->commit ();
     		return true;
     	} catch ( \Doctrine\DBAL\DBALException $dbalExc ) {
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$dbalExc->getMessage()." Linha: " . __LINE__);
     		$conn->rollBack ();
     		return false;
     	} catch ( \Exception $e ) {
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);
     		$conn->rollBack ();
     		return false;
     	}
@@ -51,6 +55,7 @@ class RoleService extends AbstractService {
             $role=$repository->findOneBy($criteria);
             return $role;
         }catch (\Exception $e){
+        	LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);
             return null;
         }
     }
@@ -62,6 +67,7 @@ class RoleService extends AbstractService {
     		$role=$repository->findOneBy($criteria);
     		return $role;
     	}catch (\Exception $e){
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);
     		return null;
     	}
     }

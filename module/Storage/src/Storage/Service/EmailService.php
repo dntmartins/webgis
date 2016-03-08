@@ -10,15 +10,14 @@ use Zend\Authentication\Storage\Session as SessionStorage;
 use Storage\Entity\User;
 use Zend\Session\Container;
 use Storage\Service\UserService;
-use Zend\Mail\Storage\Imap as ReceiveMail;
 use Storage\Entity\Email;
 use Zend\Stdlib\ArrayObject;
 use \RecursiveIteratorIterator;
-use Email\Helper\ConfigHelper;
+use Storage\Helper\ConfigHelper;
 use \Email\Exception\MissingConfigException;
-use \Email\Exception\ServiceReceiveException;
 use Zend\Mail\Storage as Storage;
 use \Zend\Mail\Transport\Exception\RuntimeException;
+use Main\Helper\LogHelper;
 
 class EmailService {
 	
@@ -68,8 +67,8 @@ class EmailService {
 				$html 
 		) );
 		
-		$env = getenv('APPLICATION_ENV');
-		$emailsTo = ( ($env == 'development') ? ($emailConfig['webmaster_account']['mail_user']) : ($emailsTo) );
+		//$env = getenv('APPLICATION_ENV');
+		//$emailsTo = ( ($env == 'development') ? ($emailConfig['webmaster_account']['mail_user']) : ($emailsTo) );
 		
 		$mail->setBody ( $body ); // will generate our code html from template.phtml
 		$mail->setFrom ( $USER_MAIL, 'FUNCATE' );
@@ -81,9 +80,9 @@ class EmailService {
 			$returnSend = $transport->send ( $mail );
 		}catch (\Zend\Mail\Transport\Exception\RuntimeException $e) {
 			$returnSend = $e->getMessage();
+			LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);
 			return false;
 		}
-		
 		return $returnSend;
 	}
 	
@@ -92,5 +91,4 @@ class EmailService {
 		$emailConfig = $config->getConfig ();
 		return $emailConfig;
 	}	
-	
 }

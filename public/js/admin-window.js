@@ -1,3 +1,9 @@
+var moreInfo=function() {
+	var link = "<a href='http://www.dpi.inpe.br/boeing/doku.php?id=wiki:development:portal'>http://www.dpi.inpe.br/boeing/</a>";
+	$("#moreInfo").modal('show');
+	$("#moreInfoContent").html('Para informações sobre como incluir URLs de serviços no Terrabrasilis, acesse:<br/>'+link+'<br/>*é necessário senha de acesso para ver estas informações.');
+};
+
 var showAjaxSuccessMessage = function (msg, appendMsg){
     if(appendMsg)
         $("#ajax_admin_success_msg").append( "<div>" + msg + "</div>" );
@@ -10,7 +16,7 @@ var showAjaxSuccessMessage = function (msg, appendMsg){
 
 var showAjaxErrorMessage = function (msg, appendMsg){
     if(appendMsg)
-    	$("#ajax_admin_error_msg").append( "<div>" + msg + "</div>" );
+    	$("#ajax_admin_error_msg").append("<div>" + msg + "</div>");
     else
         $("#ajax_admin_error_msg").html(msg);
     $("#ajax_admin_error").fadeIn();
@@ -26,7 +32,7 @@ var getPublish = function(id) {
 var publish = function(){
 	date = $("#publishDate").val();
 	id = $("#id").val();
-	url = "/project/publish?id="+id+"&date="+date;
+	url = basePath+"/project/publish?id="+id+"&date="+date;
 	var success = function(responseJSON) {
 		$("#publish").modal("hide");
 		if (responseJSON.status) {
@@ -62,13 +68,25 @@ var disableUser = function(id, url) {
 	};
 
 	var success = function(responseJSON) {
-		if (responseJSON.status) {
-			document.location.reload(true);
+		if(responseJSON.status){
+			userId = responseJSON.userId; 
+			$("#userName"+userId).addClass('link-disable');
+			$("#userLogin"+userId).addClass('link-disable');
+			$("#userEmail"+userId).addClass('link-disable');
+			$("#userRol"+userId).addClass('link-disable');
+			$("#editUserBtn"+userId).addClass('link-disable');
+			$("#enableDisableUserBtn"+userId).attr("href","javascript:enableUser("+userId+", '"+basePath+"/user/enable');");
+			$("#enableDisableUserBtn"+userId).removeClass("glyphicon-ban-circle");
+			$("#enableDisableUserBtn"+userId).addClass("glyphicon-ok-circle");
+			showAjaxSuccessMessage(responseJSON.msg);
+		}
+		else{
+			showAjaxErrorMessage(responseJSON.msg);
 		}
 	};
 
 	var fail = function() {
-		document.location.reload(true);
+		showAjaxErrorMessage("Não foi possível desativar o usuário");
 	};
 	$.ajax({
 		dataType : "json",
@@ -88,15 +106,25 @@ var enableUser = function(id, url) {
 	$('loading_' + id).show();
 
 	var success = function(responseJSON) {
-		if (responseJSON.status) {
-			document.location.reload(true);
-		} else if(!responseJSON.isLogged){
-			document.location.reload(true);
+		if(responseJSON.status){
+			userId = responseJSON.userId;
+			$("#userName"+userId).removeClass('link-disable');
+			$("#userLogin"+userId).removeClass('link-disable');
+			$("#userEmail"+userId).removeClass('link-disable');
+			$("#userRol"+userId).removeClass('link-disable');
+			$("#editUserBtn"+userId).removeClass('link-disable');
+			$("#enableDisableUserBtn"+userId).attr("href","javascript:disableUser("+userId+", '"+basePath+"/user/disable');");
+			$("#enableDisableUserBtn"+userId).addClass("glyphicon-ban-circle");
+			$("#enableDisableUserBtn"+userId).removeClass("glyphicon-ok-circle");
+			showAjaxSuccessMessage(responseJSON.msg);
+		}
+		else{
+			showAjaxErrorMessage(responseJSON.msg);
 		}
 	};
 
 	var fail = function() {
-		document.location.reload(true);
+		showAjaxErrorMessage("Não foi possível ativar o usuário");
 	};
 	var always = function() {
 		$('loading_' + id).hide();
@@ -129,17 +157,16 @@ var removeRole= function(url) {
 
 	var success = function(responseJSON) {
 		if (responseJSON.status) {
-			document.location.reload(true);
-		} else if(responseJSON.msg){
+			$("#roleRow"+responseJSON.rolId).remove();
+			showAjaxSuccessMessage(responseJSON.msg);
+		}else if(responseJSON.msg){
 			$("#removeError").modal('show');
 			$("#modalLabelError").html(responseJSON.msg);
-		} else if(!responseJSON.isLogged){
-			document.location.reload(true);
 		}
 	};
 
 	var fail = function() {
-		document.location.reload(true);
+		showAjaxErrorMessage("Não foi possível remover o perfil");
 	};
 	var always = function() {
 		$('loading_' + id).hide();
@@ -166,13 +193,25 @@ var disableProject = function(id, url) {
 	};
 
 	var success = function(responseJSON) {
-		if (responseJSON.status) {
-			document.location.reload(true);
+		if(responseJSON.status){
+			prjId = responseJSON.prjId;
+			$("#prjName"+prjId).addClass('link-disable');
+			$("#prjDesc"+prjId).addClass('link-disable');
+			$("#prjLink"+prjId).addClass('link-disable');
+			$("#editPrjBtn"+prjId).addClass('link-disable');
+			$("#publishPrjBtn"+prjId).addClass('link-disable');
+			$("#enableDisablePrjBtn"+prjId).attr("href","javascript:enableProject("+prjId+", '"+basePath+"/project/enable');");
+			$("#enableDisablePrjBtn"+prjId).removeClass("glyphicon-ban-circle");
+			$("#enableDisablePrjBtn"+prjId).addClass("glyphicon-ok-circle");
+			showAjaxSuccessMessage(responseJSON.msg);
+		}
+		else{
+			showAjaxErrorMessage(responseJSON.msg);
 		}
 	};
 
 	var fail = function() {
-		document.location.reload(true);
+		showAjaxErrorMessage("Não foi possível desativar o projeto");
 	};
 	$.ajax({
 		dataType : "json",
@@ -192,15 +231,25 @@ var enableProject = function(id, url) {
 	$('loading_' + id).show();
 
 	var success = function(responseJSON) {
-		if (responseJSON.status) {
-			document.location.reload(true);
-		} else if(!responseJSON.isLogged){
-			document.location.reload(true);
+		if(responseJSON.status){
+			prjId = responseJSON.prjId;
+			$("#prjName"+prjId).removeClass('link-disable');
+			$("#prjDesc"+prjId).removeClass('link-disable');
+			$("#prjLink"+prjId).removeClass('link-disable');
+			$("#editPrjBtn"+prjId).removeClass('link-disable');
+			$("#publishPrjBtn"+prjId).removeClass('link-disable');
+			$("#enableDisablePrjBtn"+prjId).attr("href","javascript:disableProject("+prjId+", '"+basePath+"/project/disable');");
+			$("#enableDisablePrjBtn"+prjId).addClass("glyphicon-ban-circle");
+			$("#enableDisablePrjBtn"+prjId).removeClass("glyphicon-ok-circle");
+			showAjaxSuccessMessage(responseJSON.msg);
+		}
+		else{
+			showAjaxErrorMessage(responseJSON.msg);
 		}
 	};
 
 	var fail = function() {
-		document.location.reload(true);
+		showAjaxErrorMessage("Não foi possível ativar o projeto");
 	};
 	var always = function() {
 		$('loading_' + id).hide();
@@ -214,6 +263,28 @@ var enableProject = function(id, url) {
 		complete : always
 	});
 };
+
+var setOlderAndNewerDates = function(){
+	id = $("#prjs").val();
+	url = basePath+"/shape/getOlderAndNewerDates?prjId="+id;
+	var success = function(responseJSON) {
+		if (responseJSON.status) {
+			$("#from").val(responseJSON.older);
+			$("#to").val(responseJSON.newer);
+		}
+	};
+
+	var fail = function() {
+		showAjaxErrorMessage("Ocorreu um erro no servidor");
+	};
+	$.ajax({
+		type:"get",
+		dataType : "json",
+		url : url,
+		success : success,
+		error : fail
+	});
+}
 
 var checkPrjs = function(assocPrjs){
 	$("input[name='prjs[]']:checkbox").prop('checked', false);
@@ -222,79 +293,28 @@ var checkPrjs = function(assocPrjs){
 	}
 }
 
-var getDataStore = function(id, name) {
-	$("#remove").modal('show');
-	$("#dataStoreNameLabel").html('A conexão <b>'+ name +'</b> será removida permanentemente. Confirma?');
-	$('#hiddenId').val(id);
-}
-
-var removeDataStore = function(url) {
-	var id = $('#hiddenId').val();
-
-	$("#remove").modal('hide');
-
-	var data = {
-		"id" : id
-	};
-	$('loading_' + id).show();
-
-	var success = function(responseJSON) {
-		if (responseJSON.status) {
-			document.location.reload(true);
-		} else if(responseJSON.msg){
-			$("#removeError").modal('show');
-			$("#modalLabelError").html(responseJSON.msg);
-		} else if(!responseJSON.isLogged){
-			document.location.reload(true);
-		}
-	};
-
-	var fail = function() {
-		document.location.reload(true);
-	};
-	var always = function() {
-		$('loading_' + id).hide();
-	};
-	$.ajax({
-		dataType : "json",
-		url : url,
-		data : data,
-		success : success,
-		error : fail,
-		complete : always
-	});
-};
-
 var changeUser = function() {
 	var userId = $("#users").val();
 	var url = "getUserPrjs?id="+userId;
 		
 	var success = function(responseJSON) {
 		if (responseJSON.status != undefined) {
-			$('input[name="prjs[]"]').attr('disabled', false);
-			$("input[name='prjs[]']:checkbox").prop('checked', false);
-			
-			prjs = document.getElementsByName("prjs[]");
-			if(responseJSON.assocPrjs){
-				checkPrjs(responseJSON.assocPrjs);
-			}
-			prjsToDisable = responseJSON.prjsToDisable;
-			if(prjsToDisable){
-				for (var count = 0; count < prjs.length; count++) {
-					prj = prjs[count];
-					if(jQuery.inArray(parseInt(prj.value), prjsToDisable) != -1){
-						prj.disabled = true;
-					}
+			if(responseJSON.status){
+				$('input[name="prjs[]"]').attr('disabled', false);
+				$("input[name='prjs[]']:checkbox").prop('checked', false);
+				
+				prjs = document.getElementsByName("prjs[]");
+				if(responseJSON.assocPrjs){
+					checkPrjs(responseJSON.assocPrjs);
 				}
-			}
-			if(!responseJSON.isLogged){
-				document.location.reload(true);
+			}else{
+				showAjaxErrorMessage(responseJSON.msg);
 			}
 		}
 	};
 
 	var fail = function() {
-		document.location.reload(true);
+		showAjaxErrorMessage('Não foi possível recuperar os projetos associados a este usuário');
 	};
 
 	$.ajax({
@@ -411,21 +431,16 @@ $(document).ready(function(){ //Mensagens de aviso para o combo de perfil!
 });
 
 function checkRole(name, id){
-	
-	var	url = ((id === "") ? "checkDuplicateName?name=" + name : 
-			"checkDuplicateName?name=" + name + "&id=" + id);
-	
+	var	url = ((id === "") ? basePath+"/role/checkDuplicateName?name=" + name : basePath+"/role/checkDuplicateName?name=" + name + "&id=" + id);
 	var fail = function() {
-		document.location.reload(true);
+		showAjaxErrorMessage('Não foi possível verificar se o nome do perfil já existe');
 	};
-	
 	var call = $.ajax({
     	async: false,
 		url: url,
 		fail: fail,
 		dataType : "json", 
     }).responseText;
- 
 	var result = JSON.parse(call);
 	return result.status;	
 }
@@ -452,7 +467,7 @@ function createPerfilForm(){
 
 	if(!validateName.flag){
 		//Validação do campo nome
-		if(!checkRole(nome, formEdit)){
+		if(checkRole(nome, formEdit)){
 			hasError.nome = validateName.flag;
 			jsonErros.nome = validateName.msg;	
 		}else{
@@ -490,7 +505,7 @@ var addProject = function(){
 	$("#btnAddProject").addClass("link-disable");
 	$("#loading").show();
 	 
-	url = "/project/form";
+	url = basePath+"/project/form";
 	formData = new FormData();
 
 	id = $("#id").val();
@@ -504,7 +519,7 @@ var addProject = function(){
 		$("#loading").hide();
 		return;
 	}
-	regex = prjName.match(/[À-ú!@#$%*()[]|'"_+?:><?©\/-=§¹²³£¢¬/);
+	regex = prjName.match(/[À-ú!@#$%*()[]|'"_+?:><?©\/-.=§¹²³£¢¬/);
 	if(prjName.length > 10){
 		showAjaxErrorMessage("Nome do projeto deve conter no máximo 10 caracteres");
 		$("#btnAddProject").removeClass("link-disable");
@@ -575,7 +590,7 @@ var addProject = function(){
 			CKEDITOR.instances.description.setData('');
 			$("#btnAddProject").removeClass("link-disable");
 			$("#loading").hide();
-			document.location = "/project";
+			document.location = basePath+"/project";
 			showAjaxSuccessMessage(response.msg);
 		}else{
 			$("#sld").replaceWith($("#sld").clone());
@@ -636,7 +651,7 @@ var removeShapes = function(){
 		return;
 	}
 	if(to && from){
-		var url = document.location.origin + "/shape/removeZipFiles?from="+from+"&to="+to+"&prjId="+prj;
+		var url = basePath + "/shape/removeZipFiles?from="+from+"&to="+to+"&prjId="+prj;
 		var success = function(responseJSON) {
 			if (responseJSON.status) {
 				showAjaxSuccessMessage(responseJSON.msg);

@@ -6,9 +6,9 @@ use Doctrine\ORM\EntityRepository;
 use Doctrine\Common\Collections\Criteria;
 
 class UserRepository extends EntityRepository {
-	
-	public function findByEmailAndPassword($email, $password) {
-        $user = $this->findOneByEmail($email);
+
+	public function findByLoginAndPassword($login, $password) {
+        $user = $this->findOneByLogin($login);
      
         if($user && $user->encryptPassword($password) == $user->password)
         	return $user;
@@ -23,7 +23,7 @@ class UserRepository extends EntityRepository {
 			$a [$user->useId] ['id'] = $user->useId;
 			$a [$user->useId] ['nome'] = $user->name;
 			$a [$user->useId] ['email'] = $user->email;
-			
+			$a [$user->useId] ['login'] = $user->login;
 		}
 	
 		return $a;

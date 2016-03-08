@@ -3,7 +3,8 @@
 namespace Storage\Service;
 
 use Doctrine\ORM\EntityManager;
-
+use Main\Helper\LogHelper;
+use Storage\Entity\Layer;
 class ProjectService extends AbstractService {
 
     public function __construct(EntityManager $em) {
@@ -21,6 +22,7 @@ class ProjectService extends AbstractService {
         	$aProj=$repository->findOneBy($criteria,$orderBy);
         	return $aProj;
     	}catch (\Exception $e){
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);
     	    return null;
     	}
     }
@@ -32,7 +34,8 @@ class ProjectService extends AbstractService {
     		$aProj=$repository->findOneBy($criteria);
     		return $aProj;
     	}catch (\Exception $e){
-    		return $e->getMessage();
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);
+    		return null;
     	}
     }
     
@@ -53,8 +56,10 @@ class ProjectService extends AbstractService {
     		$resultExec = $conn->exec ( $sql );
     		return true;
     	} catch ( \Doctrine\DBAL\DBALException $dbalExc ) {
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$dbalExc->getMessage()." Linha: " . __LINE__);
     		return false;
     	} catch ( \Exception $e ) {
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);
     		return false;
     	}
     }
@@ -76,37 +81,88 @@ class ProjectService extends AbstractService {
     			return true;
     		}
     	} catch ( \Doctrine\DBAL\DBALException $dbalExc ) {
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$dbalExc->getMessage()." Linha: " . __LINE__);
     		$conn->rollBack ();
     		return false;
     	} catch ( \Exception $e ) {
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);
     		$conn->rollBack ();
     		return false;
     	}
     }
-    public function publish($project, $date, $datasource, $tableName){
-    	$sql = "UPDATE project set publicacao_oficial='" . $date . "' WHERE prj_id=" . $project->prjId;
-
+    public function publish($project, $date, $datasource, $tableName, $serviceLocator, $template){
+    	$geoserverRESTService = $serviceLocator->get ( 'Storage\Service\GeoServerRESTService' );
+    	$geoserverService = $serviceLocator->get ( 'Storage\Service\GeoServerService' );
+    	$layerService = $serviceLocator->get ( 'Storage\Service\LayerService' );
+    	
+    	$sql = "UPDATE layer set publicacao_oficial='" . $date . "' WHERE prj_id=" . $project->prjId;
     	$conn = $this->em->getConnection ();
-
     	try {
+    		$columnName = null;
+    		if($template){
+	    		foreach ($template as $column){
+	    			if ($column['type'] == 'date'){
+	    				$columnName = $column['name'];
+	    			}
+	    		}
+    		}
+    		else{
+    			LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: Template de validação do dbf não existe Linha: " . __LINE__);
+    			return false;
+    		}
+    		
     		$conn->beginTransaction ();
-    		 
     		$resultExec = $conn->exec ( $sql );
+    		if($resultExec===false) {
+    			LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . ":" .__LINE__." FALHOU ao executar a query(mysql): ".$sql);
+    			return false;
+    		}
+    		
     		$connect = pg_connect('host='.$datasource->host.' dbname='.$datasource->dbName.' user='.$datasource->login.' password='.$datasource->password.' connect_timeout=50');
 			if($connect){
-				$sql = 'CREATE OR REPLACE VIEW '. $tableName.'_view AS SELECT * FROM '. $tableName.' where "data"::timestamp <= \''.$date.'\'::timestamp;';			
-				$query = pg_query($sql);
+				$sql = 'CREATE OR REPLACE VIEW "'. $tableName.'_view" AS SELECT * FROM "'. $tableName.'" where "data"::timestamp <= \''.$date.'\'::timestamp;';			
+				$query = pg_query($connect, $sql);
 				if($query){
-					$conn->commit();
-					return true;
+					$geoServer = $geoserverService->getByPrj($project->prjId);
+					if($geoServer){
+						$layer = $layerService->getByPrjID($project->prjId);
+						if($layer){
+							$sldName = null;
+							if($layer->sld)
+								$sldName = $layer->sld->sldName;
+							$resultGeoserver = $geoserverRESTService->createLayer($geoServer->login.":".$geoServer->pass, $project->projectName, $tableName.'_view', $geoServer->host, $sldName);
+							if($resultGeoserver){
+								$conn->commit();
+								return true;
+							}
+							else{
+								$conn->rollBack();
+								return false;
+							}
+						}
+						else{
+							LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: Esse projeto não possui um layer Linha: " . __LINE__);
+							$conn->rollBack ();
+							return false;
+						}
+					}
+					else{
+						LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: Dados de conexão do geoserver não foram recuperados Linha: " . __LINE__);
+						$conn->rollBack ();
+						return false;
+					}
 				}
-				pg_close();
+				LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . ":" .__LINE__." FALHOU ao executar a query(postgres): ".$sql);
+				$conn->rollBack();
+				pg_close($connect);
 			}
    			return false;
     	} catch ( \Doctrine\DBAL\DBALException $dbalExc ) {
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$dbalExc->getMessage()." Linha: " . __LINE__);
     		$conn->rollBack ();
     		return false;
     	} catch ( \Exception $e ) {
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);
     		$conn->rollBack ();
     		return false;
     	}
@@ -121,8 +177,8 @@ class ProjectService extends AbstractService {
     
     		return $entity;
     	}catch (\Exception $e){
-    		return $e->getMessage();
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);
+    		return null;
     	}
-    
     }
 }

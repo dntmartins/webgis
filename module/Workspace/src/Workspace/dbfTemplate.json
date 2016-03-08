@@ -1,6 +1,18 @@
 {
 	"0":{
-		"name":"cell_oid",
+		"name":"UF",
 		"type":"character"
+	},
+	"1":{
+		"name":"MUCICIPIO",
+		"type":"character"
+	},
+	"2":{
+		"name":"AREAMETERS",
+		"type":"number"
+	},
+	"3":{
+		"name":"DATE_FORMA",
+		"type":"date"
 	}
 }

@@ -9,6 +9,12 @@
 		            <span id="help-block-nome" class="help-block"></span>
 		        </div>
 		        
+		        <div id="form-group-login" class="form-horizontal">
+		            <label for="login-input">Login: </label>
+		            <input id="login-input" type="text" class="form-control" name="login" placeholder="Login do usuário" value="<?php $this->us?print $this->us->login:''?>">
+		            <span id="help-block-login" class="help-block"></span>
+		        </div>
+		        
 		       <div id="form-group-email" class="form-horizontal">
 		            <label for="email-input">Email: </label>
 		            <input id="email-input" type="text" class="form-control" name="email" placeholder="Email do usuário" value="<?php $this->us?print $this->us->email:''?>">
@@ -61,3 +67,6 @@
 	            <p><small>*Todos os campos são obrigatórios</small></p>
 	</form>
 </div>
+<script>
+var basePath = '<?php echo $this->basePath(); ?>';
+</script>

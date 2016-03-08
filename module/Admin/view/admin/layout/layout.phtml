@@ -46,7 +46,7 @@ if(get_class($session->user)=='Storage\Entity\User'){
 				<div class="page-header">
 					<h1>
 						<img id="logo-inpe-simples" alt="Logo Inpe"
-							src="/img/logo-inpe-simples.png"> SubmitGeoData <br />
+							src="<?php echo $this->basePath() ?>/img/logo-inpe-simples.png"> SubmitGeoData <br />
 						<small>Envio de dados geográficos</small>
 					</h1>
 				</div>
@@ -84,7 +84,7 @@ if(get_class($session->user)=='Storage\Entity\User'){
 						<div class="navbar-header">
 							 <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
 							 <span class="sr-only">Alterna nevegação</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span></button> <a class="navbar-brand" href="<?php echo $this->basePath().'/'; ?>">Página Principal</a>
-							<?php if(isset($user)) echo "<a class=' navbar-brand' href='".$this->basePath()."/workspace'>Área de Trabalho</a>";?>
+							<?php if(isset($user)) echo "<a class=' navbar-brand' href='".$this->basePath()."/workspace'>Upload</a>";?>
 						</div>
 						<div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
 							<ul class="nav navbar-nav">
@@ -114,7 +114,7 @@ if(get_class($session->user)=='Storage\Entity\User'){
 								$html_form=''.
 								'<form action="'.$this->basePath().'/auth/login" method="post" class="navbar-form navbar-right">'.
 									'<div class="form-group">'.
-										'<input class="form-control input-sm" type="text" name="email" id="email" placeholder="Email" />'.
+										'<input class="form-control input-sm" type="text" name="login" id="email" placeholder="Login" />'.
 									'</div>&nbsp;'.
 									'<div class="form-group">'.
 										'<input class="form-control input-sm" type="password" name="password" id="password" placeholder="Senha" />'.

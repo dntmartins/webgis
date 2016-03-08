@@ -43,13 +43,13 @@ class Adapter implements AdapterInterface {
    
    public function authenticate() {
         $repository = $this->em->getRepository("Storage\Entity\User");
-        $user = $repository->findByEmailAndPassword($this->getUsername(),$this->getPassword());
-       
+        $user = $repository->findByLoginAndPassword($this->getUsername(),$this->getPassword());
         if($user) {
         	if(!$user->active)
         		return new Result(Result::FAILURE, null, array('Inativo'));
         	$auth_user=new User();
         	$auth_user->email=$user->email;
+        	$auth_user->login=$user->login;
         	$auth_user->name=$user->name;
         	$auth_user->useId=$user->useId;
         	$auth_user->resetToken=$user->resetToken;
@@ -60,7 +60,6 @@ class Adapter implements AdapterInterface {
         	$auth_user->rol->rolId=$user->rol->rolId;
         	$auth_user->rol->name=$user->rol->name;
         	$auth_user->rol->isAdmin=$user->rol->isAdmin;
-        	
             return new Result(Result::SUCCESS, array('user'=>$auth_user), array('OK'));
         }
         else

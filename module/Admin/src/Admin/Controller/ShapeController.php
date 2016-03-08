@@ -11,6 +11,7 @@ use Zend\Validator\StringLength;
 use Zend\I18n\Validator\PhoneNumber;
 use Zend\I18n\Validator\Zend\I18n\Validator;
 use Main\Controller\MainController;
+use Main\Helper\LogHelper;
 
 class ShapeController extends MainController {
 	public function indexAction() {
@@ -31,6 +32,7 @@ class ShapeController extends MainController {
 			}
 			return $this->showMessage('Você precisa fazer o login para realizar essa operação', 'home-error', '/');
 		} catch ( \Exception $e ) {
+			LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage() ."- Linha: " . __LINE__);
 			return $this->showMessage('Não foi possível recuperar os usuários cadastrados', 'home-error', '/');
 		}
 	}
@@ -54,6 +56,8 @@ class ShapeController extends MainController {
 								'msg' => 'A data inicial deve ser anterior a data final'
 						) ) );
 						return $response;
+					}else{
+						LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: Erro ao pegar Timestamp. - Linha: " . __LINE__);		
 					}
 					
 					$serviceLocator = $this->getServiceLocator ();
@@ -104,9 +108,43 @@ class ShapeController extends MainController {
 			) ) );
 			return $response;
 		} catch ( \Exception $e ) {
+			LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage() ."- Linha: " . __LINE__);
 			$response->setContent ( \Zend\Json\Json::encode ( array (
 					'status' => false,
 					'isLogged' => true,
+					'msg' => 'Não foi possível realizar essa operação'
+			) ) );
+			return $response;
+		}
+	}
+	public function getOlderAndNewerDatesAction(){
+		try{
+			$response = $this->getResponse();
+			$formdata = $this->getFormData();
+			$prjId = $formdata["prjId"];
+			$serviceLocator = $this->getServiceLocator();
+			$shapeFileService = $serviceLocator->get ( 'Storage\Service\ShapefileService' );
+				
+			$dates = $shapeFileService->getOlderAndNewerDates($prjId);
+			if($dates){
+				$older = explode(' ', $dates[1])[0];
+				$newer = explode(' ', $dates[2])[0];
+				$response->setContent ( \Zend\Json\Json::encode ( array (
+						'status' => true,
+						'older' => $older,
+						'newer' => $newer
+				) ) );
+			}else{
+				LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: Datas não foram recuperadas - Linha: " . __LINE__);
+				$response->setContent ( \Zend\Json\Json::encode ( array (
+						'status' => false
+				) ) );
+			}	
+			return $response;
+		} catch ( \Exception $e ) {
+			LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage() ."- Linha: " . __LINE__);
+			$response->setContent ( \Zend\Json\Json::encode ( array (
+					'status' => false,
 					'msg' => 'Não foi possível realizar essa operação'
 			) ) );
 			return $response;

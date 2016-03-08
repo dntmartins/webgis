@@ -1,6 +1,6 @@
-<script src="/js/jquery.mask.min.js" type="text/javascript"></script>
+<script src="<?php echo $this->basePath(); ?>/js/jquery.mask.min.js" type="text/javascript"></script>
 <div class="container">
-	<h2 class="text-center">Área de Trabalho</h2>
+	<h2 class="text-center">Upload</h2>
 	<br />
 	<div class="acesso">
 		<div class="row clearfix">
@@ -31,7 +31,7 @@
 					<select id="comboSld" rel="tooltip" data-container="body"
 						data-placement="right" title="Seleção de estilo"
 						class="form-control input-md" onchange="<?php $this->current_prj ?print "setDefaultSld(this)":"" ?>" <?php $this->current_prj && !$this->current_prj->active?print " disabled":"" ?>>
-						<option selected="selected" value="">Estilos</option>
+						<option selected="selected" value="0">Estilos</option>
 						<?php
 						if ($this->current_prj && ! empty ( $this->slds )) {
 							$slds = $this->slds;
@@ -59,7 +59,7 @@
 	  						</div>
 						</div>
 						<label id="escolher-shape" for="shape" class="<?php ($this->current_prj && !$this->current_prj->active) || !$this->uploadShape?print " link-disable":"" ?>"> 
-							<a class="btn btn-default"  title="Enviar shapefile para o servidor.">
+							<a class="btn btn-default"  title="Enviar shapefile para o servidor." <?php $this->current_prj ? "":print "disabled" ?>>
 							<span class="glyphicon glyphicon-upload"></span>
 							 Escolher arquivo
 							</a>
@@ -67,7 +67,7 @@
 						<label id="shapeFileName"></label>
 						<br />
 						<small>Escolha um arquivo .zip</small>
-						<input style="display: none" type="file" id="shape" name="shapeUpload" onchange="showShapeFileName()">
+						<input style="display: none" type="file" id="shape" name="shapeUpload" onchange="showShapeFileName()" <?php $this->current_prj ? "":print "disabled" ?>>
 						<br />
 						<br />
 						<a id="uploadShape" href="javascript:uploadShape()" class="btn btn-primary link-disable">
@@ -80,12 +80,13 @@
 				<br /> <span class="lead">Seleção de arquivo de estilo para envio</span>
 				<div class="bordaPrj">
 					<label for="sld" class="<?php ($this->current_prj && !$this->current_prj->active) || !$this->uploadSld?print "link-disable":"" ?>"> <a class="btn btn-default"
-						title="Enviar sld para o servidor."> <span
+						title="Enviar sld para o servidor." <?php $this->current_prj ? "":print "disabled" ?>> <span
 							class="glyphicon glyphicon-upload"></span> Escolher arquivo
 					</a>
 					</label> <label id="sldName"></label> <br /> <small>Escolha um
 						arquivo .sld</small> <input style="display: none" type="file"
-						id="sld" name="sldUpload" onchange="showSldFileName()"> <br /> <br />
+						id="sld" name="sldUpload" onchange="showSldFileName()" <?php $this->current_prj ? "":print "disabled" ?>>
+					<br /> <br />
 					<a id="uploadSld" href="javascript:uploadSld()"
 						class="btn btn-primary link-disable"><span
 						class="glyphicon glyphicon-floppy-disk"></span> Salvar</a> <i
@@ -189,6 +190,13 @@
 			type="button">×</button>
 		<div id="ajax_workspace_success_msg"></div>
 	</div>
+	<div id="ajax_workspace_warning"
+		class="alert alert-dismissable alert-warning alert-messages"
+		hidden="hidden">
+		<button class="close" onclick="$('#ajax_workspace_warning').hide()"
+			type="button">×</button>
+		<div id="ajax_workspace_warning_msg"></div>
+	</div>
 
 	<div class="container">
 		<div class="row clearfix">
@@ -263,4 +271,6 @@
 </div>
 <script type="text/javascript">
 var basePath = '<?php echo $this->basePath(); ?>';
+var fileSizeInBytes = '<?php echo $this->fileSizeInBytes; ?>';
+var fileSizeString = '<?php echo $this->fileSizeString; ?>';
 </script>

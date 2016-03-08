@@ -15,10 +15,27 @@ sudo apt-get install curl php5-curl
 ##Mysql
 sudo apt-get install php5-mysql mysql-server-5.5
 
-##Postgres e Postgis
+##POSTGRES
+São dois cenários possíveis.
+
+###Postgres e Postgis (ATENÇÃO: caso o servidor de dados geográficos fique no mesmo servidor da aplicação)
 sudo apt-get install postgresql-9.x
 sudo apt-get install postgis
 sudo apt-get install postgresql-9.x-postgis-2.1
+
+###Postgres e Postgis (ATENÇÃO: caso o servidor de dados geográficos NÃO fique no mesmo servidor da aplicação)
+sudo apt-get install postgis
+
+####Instalação limpa
+
+Você provavelmente quer deixar o servidor de aplicação limpo, livre de serviços e aquivos desnecessário.
+Para supri a dependência do sistema, que é do executável "shp2pgsql" apenas. Instale o pacote postgis, copie o executável
+shp2pgsql para uma pasta pessoal, remova o pacote postgis usando: apt-get purge postgis, e em seguida mova o executável shp2pgsql
+para a pasta original, provavelmente em /usr/bin/
+
+Outra dependência é o executável "psql", e pode ser instalado o cliente para o postgres. Atente para a versão disponível.
+
+sudo apt-get install postgresql-client-9.x
 
 #Configuração do Doctrine
 	<?php

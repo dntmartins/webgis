@@ -1,15 +1,16 @@
 <?php
-return array(
-	"geoserver" => array(
-		"login" => "admin",
-		"password" => "geoserver",
-		"host" => "localhost:8080"
-	),
-	"datasource" => array(
-		"dbName" => "postgres",
-		"login" => "postgres",
-		"password" => "postgres",
-		"host" => "localhost",
-		"port" => 5432
-	)
-);
+	return array(
+		"geoserver" => array(
+			"login" => "admin",
+			"password" => "geoserver",
+			"host" => "localhost:8080",
+			"path" => "geoserver"
+		),
+		"datasource" => array(
+			"dbName" => "postgres",
+			"login" => "postgres",
+			"password" => "root",
+			"host" => "localhost",
+			"port" => 5432
+		)
+	);

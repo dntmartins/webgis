@@ -7,6 +7,7 @@ use Storage\Entity\Configurator;
 use Doctrine\ORM\Query\ResultSetMapping;
 use Doctrine\ORM\Query;
 use Storage\Entity\Sld;
+use Main\Helper\LogHelper;
 
 class SldService extends AbstractService {
     public function __construct(EntityManager $em) {
@@ -20,9 +21,8 @@ class SldService extends AbstractService {
     		$this->em->flush();
     		return $sld;
     	}catch (\Exception $e){
-    		$erro = $e->getMessage();
-    		// TODO: Gravar log de erro...
-    		return $e->getMessage();
+			LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);
+    		return null;
     	}
     }
     
@@ -34,6 +34,7 @@ class SldService extends AbstractService {
         	$sld=$repository->findOneBy($criteria);
         	return $sld;
     	}catch (\Exception $e){
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);
     	    return null;
     	}
     }
@@ -49,6 +50,7 @@ class SldService extends AbstractService {
     		$this->em->clear();
     		return $access;
     	}catch (\Exception $e){
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);
     		return null;
     	}
     }
@@ -67,7 +69,7 @@ class SldService extends AbstractService {
 		    		throw new \Exception("Tamanho do arquivo de estilo excede o limite."); 
 		    	}
 		    	$dirArquivos = dirname ( __DIR__ );
-		    	$dir = dirname(dirname(dirname($dirArquivos))) . '/Workspace/src/Workspace' . '/file-uploads/sld/'; //Diretório para uploads	    	
+		    	$dir = dirname(dirname(dirname($dirArquivos))) . '/Workspace/src/Workspace/file-uploads/sld/'; //Diretório para uploads	    	
 		    	if (! is_dir ( $dir )) { //Criando diretório caso não exista
 		    		mkdir ( $dir );
 		    		chmod ( $dir, 0777 );
@@ -77,8 +79,10 @@ class SldService extends AbstractService {
 		    	if ($sld){
 			    	$moveSld = move_uploaded_file($sldFile['tmp_name'], $dir.$nameSld); //Fazer upload do arquivo
 			    	chmod($dir.$nameSld, 0777);
-			    	if ($moveSld)
+			    	if ($moveSld) {
+			    		$this->replaceTagNameInFile($dir.$nameSld);
 			    		return $sld;
+			    	}
 		    	}else{
 		    		throw new \Exception("Erro ao salvar arquivo de estilo."); 
 		    	}
@@ -86,9 +90,50 @@ class SldService extends AbstractService {
 		    		throw new \Exception("Erro ao salvar arquivo de estilo."); 
 		    	}
     	} catch (Exception $e) {
-    		$e->getMessage();
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);
     	}
+    }
+    
+    /**
+     * Troca a tag SvgParameter pela CssParameter. O geoserver só aceita esta tag para configuração dos estilos.
+     * @param string $fileName, path mais nome do arquivo SLD
+     */
+    private function replaceTagNameInFile($fileName) {
     	
+    	$search = array("SvgParameter");
+    	$put = array("CssParameter");
+    	
+    	if(file_exists($fileName)===TRUE)
+    	{
+    		if(is_writeable($fileName))
+    		{
+    			try
+    			{
+    				$FileContent = file_get_contents($fileName);
+    				$FileContent = str_replace($search, $put, $FileContent);
+    				if(file_put_contents($fileName, $FileContent)===false)
+    				{
+    					LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " Error while writing file. Linha: " . __LINE__);
+    				}
+    			}
+    			catch(Exception $e)
+    			{
+    				LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);
+    				return false;
+    			}
+    		}
+    		else
+    		{
+    			LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " File ".$fileName." is not writable. Linha: " . __LINE__);
+    			return false;
+    		}
+    	}
+    	else
+    	{
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " File ".$fileName." does not exist. Linha: " . __LINE__);
+    		return false;
+    	}
+    	return true;
     }
     
     private function sendSldToStorage($fileName, $diskLocation, $serviceLocator, $isAdmin) {
@@ -118,6 +163,7 @@ class SldService extends AbstractService {
     			 
     		}
     	}catch (\Exception $e){
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);
     		throw new \Exception($e->getMessage(),$e->getCode(),$e->getPrevious());
     	}
     }
@@ -129,6 +175,7 @@ class SldService extends AbstractService {
     		$role=$repository->findOneBy($criteria);
     		return $role;
     	}catch (\Exception $e){
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);
     		return null;
     	}
     }

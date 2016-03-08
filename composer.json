@@ -32,9 +32,10 @@
             "rm -rf module/Workspace/src/Workspace/file-uploads/sld/*"
         ],
         "upload:create": [
-            "mkdir -m 777 module/Workspace/src/Workspace/file-uploads/logos/",
-            "mkdir -m 777 module/Workspace/src/Workspace/file-uploads/shape-files/",
-            "mkdir -m 777 module/Workspace/src/Workspace/file-uploads/sld/",
+            "mkdir -p -m 777 module/Workspace/src/Workspace/file-uploads/logos/",
+            "mkdir -p -m 777 module/Workspace/src/Workspace/file-uploads/shape-files/",
+            "mkdir -p -m 777 module/Workspace/src/Workspace/file-uploads/sld/",
+            "mkdir -p -m 777 module/DoctrineORMModule/Proxy",
             "chmod +x module/Workspace/src/Workspace/shp2pgsql.py",
             "chmod +x module/Workspace/src/Workspace/dbfTemplate.json"
         ]

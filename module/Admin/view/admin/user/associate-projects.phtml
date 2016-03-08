@@ -5,11 +5,11 @@
 	   <br />
 	   <br />
 		<div id="form-group-users" class="form-horizontal">
-			<label>Usuário corrente: </label>
-			<a class="glyphicon glyphicon-question-sign" rel="tooltip" data-container="body" data-placement="bottom" title="Para começar, selecione o usuário corrente"></a>
+			<label>Usuário: </label>
+			<a class="glyphicon glyphicon-question-sign" rel="tooltip" data-container="body" data-placement="bottom" title="Para começar, selecione o usuário"></a>
 			<div class="form-inline">
 			<span id="help-block-users" class="help-block"></span> 
-			<select id="users" name="users" class="required form-control" onchange="changeUser()" rel="tooltip" data-container="body" data-placement="bottom" title="Selecione o usuário corrente" <?php $this->user?print 'disabled':'' ?>>
+			<select id="users" name="users" class="required form-control" onchange="changeUser()" rel="tooltip" data-container="body" data-placement="bottom" title="Selecione o usuário" <?php $this->user?print 'disabled':'' ?>>
 				<option value="0">Usuários</option>
 				<?php
 				if (! empty ( $this->users )) {
@@ -67,6 +67,9 @@
 		</div>
 	</form>
 </div>
+<script>
+var basePath = '<?php echo $this->basePath(); ?>';
+</script>
 <script type="text/javascript">
 (function(){
 	changeUser();

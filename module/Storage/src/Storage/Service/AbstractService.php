@@ -4,11 +4,11 @@ namespace Storage\Service;
 
 use Doctrine\ORM\EntityManager;
 use Storage\Entity\Configurator;
+use Main\Helper\LogHelper;
 
 abstract class AbstractService {
 	
 	/**
-	 *
 	 * @var EntityManager
 	 */
 	protected $em;
@@ -32,8 +32,7 @@ abstract class AbstractService {
 	        $this->em->flush();
 	        return true;
 	    }catch (\Exception $e){
-	    	$erro = $e->getMessage();
-	        // TODO: Gravar log de erro...
+	    	LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);
 	        return false;
 	    }
 	}
@@ -48,6 +47,7 @@ abstract class AbstractService {
 	        
 	        return $entity;
         } catch ( \Exception $e ) {
+        	LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);
         	return NULL;
         }
     }
@@ -62,6 +62,7 @@ abstract class AbstractService {
             }
             return null;
         }catch (\Exception $e){
+        	LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);
             return null;
         }
     }
@@ -69,8 +70,10 @@ abstract class AbstractService {
     	try {
     		$repository=$this->em->getRepository($this->entity);
     		$entities=$repository->findAll();
+    		LogHelper::writeOnLog("Listou ".$this->entity." no mysql");
     		return $entities;
     	}catch (\Exception $e){
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);
     		return null;
     	}
     }

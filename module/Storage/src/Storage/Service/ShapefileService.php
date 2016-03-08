@@ -5,6 +5,7 @@ namespace Storage\Service;
 use Doctrine\ORM\EntityManager;
 use Storage\Entity\Shapefile;
 use Doctrine\ORM\Query\ResultSetMapping;
+use Main\Helper\LogHelper;
 
 class ShapefileService extends AbstractService {
     public function __construct(EntityManager $em) {
@@ -22,10 +23,13 @@ class ShapefileService extends AbstractService {
     		$id = $conn->lastInsertId();
     		return $id;
     	}catch (\Doctrine\DBAL\ConnectionException $e){
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);
     		return false;
     	}catch (\Doctrine\DBAL\DBALException $dbalExc){
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$dbalExc->getMessage()." Linha: " . __LINE__);
     		return false;
     	}catch (\Exception $e){
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);
     		return false;
     	}
     }
@@ -49,8 +53,10 @@ class ShapefileService extends AbstractService {
     			return $shapes[0]->fileName;
     		return null;
     	} catch ( \Doctrine\DBAL\DBALException $dbalExc ) {
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$dbalExc->getMessage()." Linha: " . __LINE__);
     		return null;
     	} catch ( \Exception $e ) {
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);
     		return null;
     	}
     }
@@ -80,6 +86,7 @@ class ShapefileService extends AbstractService {
         	$this->em->clear();
         	return $shapes;
     	}catch (\Exception $e){
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);
     	    return null;
     	}
     }
@@ -101,11 +108,14 @@ class ShapefileService extends AbstractService {
     			$conn->exec($sql);
     			return true;
     		}catch (\Doctrine\DBAL\DBALException $dbalExc){
+    			LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$dbalExc->getMessage()." Linha: " . __LINE__);
     			return false;
     		}catch (\Exception $e){
+    			LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);
     			return false;
     		}
     	}catch (\Exception $e){
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);
     		return false;
     	}
     }
@@ -132,18 +142,31 @@ class ShapefileService extends AbstractService {
     			return false;
     		}
     	}catch (\Exception $e){
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);
     		return null;
     	}
     }
     public function getByPrjID($id){
-    try {
+    	try {
         	$repository=$this->em->getRepository($this->entity);
         	$criteria=array("prj"=>$id);
         	$orderBy=null;
         	$aData=$repository->findOneBy($criteria);
         	return $aData;
     	} catch (\Exception $e){
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);
     	    return null;
+    	}
+    }
+    
+    public function getOlderAndNewerDates($prjId){
+    	try{
+    		$sql = "SELECT MIN(shape.uploadDate), MAX(shape.uploadDate) FROM Storage\Entity\Shapefile shape WHERE shape.prj = ?1";
+    		$date = $this->em->createQuery($sql)->setParameter(1, $prjId)->getScalarResult();
+    		return $date[0];
+    	} catch (\Exception $e){
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);
+    		return null;
     	}
     }
 }

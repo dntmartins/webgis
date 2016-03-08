@@ -5,7 +5,7 @@ use Doctrine\ORM\EntityManager;
 use Storage\Entity\Configurator;
 use Doctrine\ORM\Query\ResultSetMapping;
 use Doctrine\ORM\Query;
-
+use Main\Helper\LogHelper;
 class GeoServerService extends AbstractService {
     public function __construct(EntityManager $em) {
         parent::__construct($em);
@@ -13,22 +13,24 @@ class GeoServerService extends AbstractService {
     }
     public function addGeoserver($geoserver){
     	try {
-    		$sql = "INSERT INTO geoserver(prj_id,login,pass,host)VALUES(".$geoserver->prj->prjId.",'".$geoserver->login."','".$geoserver->pass."','".$geoserver->host."')";
+    		$sql = "INSERT INTO geoserver(prj_id,login,pass,host) VALUES(".$geoserver->prj->prjId.",'".$geoserver->login."','".$geoserver->pass."','".$geoserver->host."')";
     		$conn=$this->em->getConnection();
     		$stmt = $conn->prepare ($sql);
     		$stmt->execute();
     		$id = $conn->lastInsertId();
     		return $id;
     	}catch (\Doctrine\DBAL\ConnectionException $e){
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);
     		return false;
     	}catch (\Doctrine\DBAL\DBALException $dbalExc){
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$dbalExc->getMessage()." Linha: " . __LINE__);
     		return false;
     	}catch (\Exception $e){
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);
     		return false;
     	}
     }
     
-  
     public function getById($id) {
         try {
         	$repository=$this->em->getRepository($this->entity);
@@ -37,6 +39,7 @@ class GeoServerService extends AbstractService {
         	$layer=$repository->findOneBy($criteria);
         	return $layer;
     	}catch (\Exception $e){
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);
     	    return null;
     	}
     }
@@ -49,6 +52,7 @@ class GeoServerService extends AbstractService {
     		$aData=$repository->findOneBy($criteria);
     		return $aData;
     	} catch (\Exception $e){
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);
     		return false;
     	}
     }

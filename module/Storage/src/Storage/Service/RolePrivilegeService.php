@@ -4,6 +4,7 @@ namespace Storage\Service;
 
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Query\ResultSetMapping;
+use Main\Helper\LogHelper;
 
 class RolePrivilegeService extends AbstractService {
 
@@ -26,9 +27,11 @@ class RolePrivilegeService extends AbstractService {
     				return false;
     			}
     		}catch (\Doctrine\DBAL\DBALException $dbalExc){
+    			LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$dbalExc->getMessage()." Linha: " . __LINE__);
     			$conn->rollBack();
     			return false;
     		}catch (\Exception $e){
+    			LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);
     			$conn->rollBack();
     			return false;
     		}
@@ -37,6 +40,7 @@ class RolePrivilegeService extends AbstractService {
     		$conn->commit();
     		return true;
     	}catch (\Doctrine\DBAL\ConnectionException $e){
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);
     		$conn->rollBack();
     		return false;
     	}
@@ -49,6 +53,7 @@ class RolePrivilegeService extends AbstractService {
             $privilege=$repository->findOneBy($criteria);
             return $privilege;
         }catch (\Exception $e){
+        	LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);
             return null;
         }
     }
@@ -73,6 +78,7 @@ class RolePrivilegeService extends AbstractService {
 			}
 			return $rolePriIds;
         }catch (\Exception $e){
+        	LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);
             return null;
         }
     }
@@ -89,9 +95,11 @@ class RolePrivilegeService extends AbstractService {
     		$conn->commit ();
     		return true;
     	} catch ( \Doctrine\DBAL\DBALException $dbalExc ) {
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$dbalExc->getMessage()." Linha: " . __LINE__);
     		$conn->rollBack ();
     		return false;
     	} catch ( \Exception $e ) {
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);
     		$conn->rollBack ();
     		return false;
     	}

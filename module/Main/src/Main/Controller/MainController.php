@@ -13,10 +13,13 @@ use Zend\Mime\Message as MimeMessage;
 use Zend\Validator\StringLength;
 use Zend\I18n\Validator\Alnum;
 use Main\Helper\ConfigHelper;
+use Main\Helper\LogHelper;
 
 class MainController extends AbstractActionController
 {
 	private $session;
+	private $logger;
+	
 	public function __construct() {
 		$this->session = new Container ( 'App_Auth' );
 	}
@@ -29,9 +32,15 @@ class MainController extends AbstractActionController
 	
     public function indexAction()
     {
-    	$prjService = $this->getServiceLocator()->get ('Storage\Service\ProjectService');
-    	$projects = $prjService->listAll();
-        return array('projects'=>$projects);
+    	try{
+    		$prjService = $this->getServiceLocator()->get ('Storage\Service\ProjectService');
+    		$projects = $prjService->listAll();
+    		return array('projects'=>$projects);
+    	}catch(\Exception $e){
+    		LogHelper::writeOnLog("Ocorreu um erro: ". $e->getMessage());
+    		$this->flashMessenger ()->setNamespace ( "home-error" )->addMessage ( 'Ocorreu um problema, contate o administrador do sistema.' );
+	    	return null;
+    	}
     }
 
     public function resetPasswordAction()
@@ -68,12 +77,14 @@ class MainController extends AbstractActionController
 		    					$content = $this->renderer->render ('main/tpl/template',  array( "token" => $url_token_validation));
 		    					$emailService->send('Portal projeto MSA - Definir nova senha', $user->email, $content);
 		    				} catch (\Exception $e) {
+		    					$erro = $e->getMessage();
 		    					return $this->showMessage('Falhou ao enviar e-mail', 'error-email', '/reset/resetPassword');
 		    				}
 		    				return $this->showMessage("Um link de confirmação para reset de senha foi enviado para o e-mail: " . $user->email, 'success-email', '/reset/resetPassword');
 	    				}
 	    				return $this->showMessage('Ocorreu um problema, contate o administrador do sistema.', 'error-email', '/reset/resetPassword');
 	    			}catch(\Exception $e){
+	    				LogHelper::writeOnLog("Ocorreu um erro: ". $e->getMessage());
 	    				return $this->showMessage('Ocorreu um problema, contate o administrador do sistema.', 'error-email', '/reset/resetPassword');
 	    			}
 
@@ -124,6 +135,7 @@ class MainController extends AbstractActionController
     							else
     								return $this->showMessage('Não foi possível criar a nova senha.', 'error-email', '/reset/resetPassword');
     						}catch(\Exception $e){
+    							LogHelper::writeOnLog("Ocorreu um erro: ". $e->getMessage());
     							return $this->showMessage('Ocorreu um problema, contate o administrador do sistema.', 'error-email', '/reset/resetPassword');
     						}
     					}else
@@ -285,6 +297,7 @@ class MainController extends AbstractActionController
     			return $this->showMessage('Ocorreu um erro ao alterar o usuário', 'error-user-config', '/configurations');
     		}
     	}catch (\Exception $e){
+    		LogHelper::writeOnLog("Ocorreu um erro: ". $e->getMessage());
     		return $this->showMessage('Não foi possível alterar a senha, contate o administrador do sistema', 'home-error', '/configurations');
     	}
     }
@@ -325,6 +338,7 @@ class MainController extends AbstractActionController
     		$response->setContent ( \Zend\Json\Json::encode ( array ('status' => false, 'isLogged' => false, 'permitted' => true,) ) );
     		return $response;
     	} catch ( \Exception $e ) {
+    		LogHelper::writeOnLog("Ocorreu um erro: ". $e->getMessage());
     		$response->setContent ( \Zend\Json\Json::encode ( array (
     				'status' => false,
     				'isLogged' => true
@@ -376,6 +390,7 @@ class MainController extends AbstractActionController
     		return $this->showMessage('Senha alterada com sucesso', 'success-user-config', '/configurations');
     		
     	}catch (\Exception $e){
+    		LogHelper::writeOnLog("Ocorreu um erro: ". $e->getMessage());
     		return $this->showMessage('Não foi possível alterar a senha, contate o administrador do sistema', 'home-error', '/configurations');
     	}
     }
@@ -419,6 +434,7 @@ class MainController extends AbstractActionController
     		$response->setContent ( \Zend\Json\Json::encode ( array ('status' => false, 'isLogged' => false, 'permitted' => true,) ) );
     		return $response;
     	} catch ( \Exception $e ) {
+    		LogHelper::writeOnLog("Ocorreu um erro: ". $e->getMessage());
     		$response->setContent ( \Zend\Json\Json::encode ( array (
     				'status' => false,
     				'isLogged' => true
@@ -434,7 +450,18 @@ class MainController extends AbstractActionController
     		}
     		return rmdir($dir);
     	} catch (\Exception $e) {
+    		LogHelper::writeOnLog("Ocorreu um erro: ". $e->getMessage());
     		throw new \Exception("Ocorreu um erro ao remover o diretório");
     	}
+    }
+    public function getDbfTemplate(){
+    	$templateContent = file_get_contents (getcwd()."/module/Workspace/src/Workspace/dbfTemplate.json" );
+    	if($templateContent){
+    		$template = json_decode ($templateContent, true);
+    	}else{
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: Falhou ao ler template do arquivo dbf" . " - Linha: " . __LINE__);
+    		return false;
+    	}
+    	return $template;
     }
 }

@@ -6,6 +6,7 @@ use Doctrine\ORM\EntityManager;
 use Storage\Entity\Configurator;
 use Doctrine\ORM\Query\ResultSetMapping;
 use Doctrine\ORM\Query;
+use Main\Helper\LogHelper;
 
 class DataSourceService extends AbstractService {
     public function __construct(EntityManager $em) {
@@ -21,6 +22,7 @@ class DataSourceService extends AbstractService {
         	$aData=$repository->findOneBy($criteria);
         	return $aData;
     	} catch (\Exception $e){
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);
     	    return null;
     	}
     }
@@ -33,6 +35,7 @@ class DataSourceService extends AbstractService {
         	$aData=$repository->findOneBy($criteria);
         	return $aData;
     	} catch (\Exception $e){
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);
     	    return null;
     	}
     }

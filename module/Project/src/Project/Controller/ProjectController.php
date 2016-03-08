@@ -35,6 +35,7 @@ class ProjectController extends MainController
                 )
             );
         }catch (\Exception $e){
+        	LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage() ."- Linha: " . __LINE__);
             return null;
         }
     }

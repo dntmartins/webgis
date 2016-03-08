@@ -59,4 +59,3 @@ class Geoserver
     	return $this->$name;
     }
 }
-

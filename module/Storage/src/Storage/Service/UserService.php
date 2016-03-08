@@ -6,6 +6,7 @@ use Doctrine\ORM\EntityManager;
 use Storage\Entity\Configurator;
 use Doctrine\ORM\Query\ResultSetMapping;
 use Doctrine\ORM\Query;
+use Main\Helper\LogHelper;
 
 class UserService extends AbstractService {
 
@@ -22,6 +23,7 @@ class UserService extends AbstractService {
         	$aUse=$repository->findOneBy($criteria);
         	return $aUse;
     	}catch (\Exception $e){
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);
     	    return null;
     	}
     }
@@ -31,6 +33,7 @@ class UserService extends AbstractService {
         		'rol_id='.$data->rol->rolId.
         		',name="'.$data->name.'"'.
         		',email="'.$data->email.'"'.
+        		',login="'.$data->login.'"'.
         		',reset_token="'.$data->resetToken.'"';
         if($data->password)
         	$sql .= ',password="'.$data->password.'"';
@@ -42,9 +45,11 @@ class UserService extends AbstractService {
         	$conn->commit ();
         	return true;
         } catch ( \Doctrine\DBAL\DBALException $dbalExc ) {
+        	LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$dbalExc->getMessage()." Linha: " . __LINE__);
         	$conn->rollBack ();
         	return false;
         } catch ( \Exception $e ) {
+        	LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);
         	$conn->rollBack ();
         	return false;
         }
@@ -60,6 +65,7 @@ class UserService extends AbstractService {
     
     		return $entity;
     	}catch (\Exception $e){
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);
     		return null;
     	}
     }
@@ -73,6 +79,7 @@ class UserService extends AbstractService {
     
     		return $entity;
     	}catch (\Exception $e){
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);
     		return null;
     	}
     }
@@ -84,6 +91,7 @@ class UserService extends AbstractService {
         	$users = $repository->findBy(array(),$orderBy);
         	return $users;
     	}catch (\Exception $e){
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);
     	    return null;
     	}
     }
@@ -104,9 +112,9 @@ class UserService extends AbstractService {
             }
             return false;
         }catch (\Exception $e){
+        	LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);
             return false;
         }
-        
     }
 
     public function identifyUserByEmail($email){
@@ -119,6 +127,7 @@ class UserService extends AbstractService {
     		$rsm->addMetaResult("us", "rol_id", "rol_id");
     		$rsm->addFieldResult('us','name','name');
     		$rsm->addFieldResult('us','email','email');
+    		$rsm->addFieldResult('us','login','login');
     		$rsm->addFieldResult('us','last_access','lastAccess');
     		$rsm->addFieldResult('us','reset_token','resetToken');
     		$rsm->addFieldResult('us','active','active');
@@ -128,6 +137,7 @@ class UserService extends AbstractService {
     		$this->em->clear();
     		return $user;
     	}catch (\Exception $e){
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);
     		return null;
     	}
     }
@@ -142,6 +152,7 @@ class UserService extends AbstractService {
     		$rsm->addMetaResult("us", "rol_id", "rol_id");
     		$rsm->addFieldResult('us','name','name');
     		$rsm->addFieldResult('us','email','email');
+    		$rsm->addFieldResult('us','login','login');
     		$rsm->addFieldResult('us','last_access','lastAccess');
     		$rsm->addFieldResult('us','reset_token','resetToken');
     		$rsm->addFieldResult('us','active','active');
@@ -151,6 +162,7 @@ class UserService extends AbstractService {
     		$this->em->clear();
     		return $user;
     	}catch (\Exception $e){
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);
     		return null;
     	}
     }
@@ -173,9 +185,11 @@ class UserService extends AbstractService {
     			return true;
     		}
     	} catch ( \Doctrine\DBAL\DBALException $dbalExc ) {
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$dbalExc->getMessage()." Linha: " . __LINE__);
     		$conn->rollBack ();
     		return false;
     	} catch ( \Exception $e ) {
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);
     		$conn->rollBack ();
     		return false;
     	}
@@ -191,6 +205,7 @@ class UserService extends AbstractService {
     		$rsm->addMetaResult("us", "rol_id", "rol_id");
     		$rsm->addFieldResult('us','name','name');
     		$rsm->addFieldResult('us','email','email');
+    		$rsm->addFieldResult('us','login','login');
     		$rsm->addFieldResult('us','last_access','lastAccess');
     		$rsm->addFieldResult('us','active','active');
     	
@@ -199,6 +214,7 @@ class UserService extends AbstractService {
     		$this->em->clear();
     		return $users;
     	}catch (\Exception $e){
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);
     		return null;
     	}
     }
@@ -211,8 +227,10 @@ class UserService extends AbstractService {
     			
     		return true;
     	} catch ( \Doctrine\DBAL\DBALException $dbalExc ) {
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$dbalExc->getMessage()." Linha: " . __LINE__);
     		return false;
     	} catch ( \Exception $e ) {
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);
     		return false;
     	}
     }

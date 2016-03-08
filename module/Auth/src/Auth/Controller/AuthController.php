@@ -7,14 +7,13 @@ use Zend\Authentication\Storage\Session as SessionStorage;
 use Storage\Entity\User;
 use Zend\Session\Container;
 use Storage\Service\UserService;
-use Email\Controller\EmailController;
 use Auth\Form\ChangePasswordForm;
 use Auth\Form\ChangePasswordFilter;
-use Zend\Validator\EmailAddress;
 use Zend\View\HelperPluginManager;
 use Zend\Http\Client;
 use Zend\Http\Request;
 use Main\Controller\MainController;
+use Main\Helper\LogHelper;
 
 class AuthController extends MainController {
 	public function indexAction() {
@@ -26,15 +25,6 @@ class AuthController extends MainController {
     		$basePath=$request->getBasePath();
     		if ($request->isPost ()) {
     			$data = $request->getPost ();
-    			$validatorEmail = new EmailAddress();
-    			$validatorEmail->setOptions(array('domain' => FALSE));
-    			if (!($validatorEmail->isValid($data ['email']))) {
-    				foreach ($validatorEmail->getMessages() as $messageId => $message) {
-    					$this->showMessage($message, 'home-error');
-    				}
-    				$url = $request->getHeader ( 'Referer' )->getUri ();
-    				return $this->redirect ()->toUrl ( '/' );
-    			}
     			$userService = $this->getServiceLocator ()->get ( 'Storage\Service\UserService' );
     			$accessService = $this->getServiceLocator ()->get ( 'Storage\Service\AccessService' );
     			$authAdapter = $this->getServiceLocator ()->get ( 'Auth\Auth\Adapter' );
@@ -42,7 +32,7 @@ class AuthController extends MainController {
     			$authenticationService = new AuthenticationService ();
     			$authenticationService->setStorage (new SessionStorage ());
     			
-    			$authAdapter->setUsername ( $data ['email'] )->setPassword ( $data ['password'] );
+    			$authAdapter->setUsername ( $data ['login'] )->setPassword ( $data ['password'] );
     			
     			$result = $authenticationService->authenticate ( $authAdapter );
     			$user = $result->getIdentity ()['user'];
@@ -81,7 +71,8 @@ class AuthController extends MainController {
     			}
     		}
 		}catch (\Exception $e){
-			return $this->showMessage('Ocorreu um erro ao realizar o login', 'home-error', '/');
+			LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage() ."- Linha: " . __LINE__);
+			return $this->showMessage('Ocorreu um erro ao realizar o login '.$e, 'home-error', '/');
 		}
 	}
 	public function logoutAction() {
@@ -89,6 +80,7 @@ class AuthController extends MainController {
     		$this->session->getManager ()->getStorage ()->clear ();
     		return $this->showMessage('Logout realizado com sucesso!', 'home-success', '/');
 		}catch (\Exception $e){
+			LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage() ."- Linha: " . __LINE__);
 			return $this->showMessage('Ocorreu um erro ao realizar o logout', 'home-error', '/');
 		}
 	}

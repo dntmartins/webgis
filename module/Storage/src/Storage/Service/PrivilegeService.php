@@ -3,7 +3,7 @@
 namespace Storage\Service;
 
 use Doctrine\ORM\EntityManager;
-
+use Main\Helper\LogHelper;
 class PrivilegeService extends AbstractService {
 
     public function __construct(EntityManager $em) {
@@ -18,6 +18,7 @@ class PrivilegeService extends AbstractService {
             $privilege=$repository->findOneBy($criteria);
             return $privilege;
         }catch (\Exception $e){
+        	LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);
             return null;
         }
     }

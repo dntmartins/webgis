@@ -15,7 +15,8 @@
         	
         </div>
         <div id="form-group-link" class="form-group">
-            <label for="link-input">Link: </label>
+            <label for="link-input">Link do servidor Terrabrasilis para o perfil deste projeto: </label>
+            <a class="glyphicon glyphicon-question-sign" rel="tooltip" onmouseenter="moreInfo()" data-container="body" data-placement="bottom" title="Para informações sobre como incluir URLs de serviços no Terrabrasilis, acesse: http://www.dpi.inpe.br/boeing/doku.php?id=wiki:development:portal"></a>
             <input id="link-input" type="text" class="form-control" name="link" placeholder="Link" value="<?php $this->prj?print $this->prj->link:''?>">
             <span id="help-block-link" class="help-block"></span>
         </div>
@@ -43,14 +44,14 @@
 			<label>Logo do projeto:</label>
 		</div>
        <div id="form-group-logoView" class="form-group">		        	
-        	<img class="thumbnail" id="logoImg" height="200" width="250" style="<?php $this->prj? print '' : print'display: none;'?>" src="<?php $this->prj? print "/project/getLogo?id=".$prj->prjId : print '' ?>" alt="LOGO" />	
+        	<img class="thumbnail" id="logoImg" height="200" width="250" style="<?php $this->prj? print '' : print'display: none;'?>" src="<?php $this->prj? print $this->basePath()."/project/getLogo?id=".$prj->prjId : print '' ?>" alt="LOGO" />	
         	<span id="help-block-link" class="help-block"></span>
         </div>
         <div id="form-group-logo" class="form-group">
             <label class="pull-left" for="image"> 
 				<span class="btn btn-default">
 				<span class="glyphicon glyphicon-upload"></span> 
-				Enviar logo</span> 
+				Escolher logo</span> 
 				<label id="uploadLogoLabel"></label>
 			</label>
 			<input id="image" type="file" name="image" style="display: none;" onchange="showUploadImageName()" />
@@ -67,6 +68,11 @@
 	<br />
 	<br />
     <p><small>*Todos os campos são obrigatórios</small></p>
+</div>
+<div class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog" id="moreInfo" aria-labelledby="myMoreInfoLabel">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content" id="moreInfoContent">&nbsp;</div>
+  </div>
 </div>
 <script src='//cdn.ckeditor.com/4.4.6/standard/ckeditor.js'></script>
 <script type='text/javascript'>
@@ -88,4 +94,7 @@ function imageIsLoaded(e) {
     $('#logoImg').show();
 };
 
+</script>
+<script>
+var basePath = '<?php echo $this->basePath(); ?>';
 </script>

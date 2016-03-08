@@ -18,7 +18,7 @@
 		<?php if($this->roles) { ?>
 		    <?php foreach($this->roles as $role){ 
 		    	if($role->rolId != 102) {?>
-		   		<tr>
+		   		<tr id="roleRow<?php echo $role->rolId ?>">
 					<td><?php echo $role->name; ?></td>
 					<td><?php $role->isAdmin?print 'Sim':print 'Não'; ?></td>
 					<td><a class='glyphicon glyphicon-edit' <?php print "href='".$this->basePath()."/role/form?id=".$role->rolId."'"?> rel="tooltip" data-container="body" data-placement="bottom" title="Modificar informações do perfil" ></a> 
@@ -74,3 +74,6 @@
 			</div>
 		</div>
 	</div>
+	<script>
+var basePath = '<?php echo $this->basePath(); ?>';
+</script>

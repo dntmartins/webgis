@@ -17,7 +17,7 @@
 						<div class="thumbnail">
 							<img alt="<?php echo $project->projectName ?>" data-src="holder.js/100%x200"
 								style="height: 200px; width: 100%; display: block;"
-								src="<?php echo "/project/getLogo?id=".$project->prjId ?>"
+								src="<?php echo $this->basePath()."/project/getLogo?id=".$project->prjId ?>"
 								data-holder-rendered="true">
 							<div class="caption">
 								<h4><?php echo $project->projectName ?></h4>
@@ -53,4 +53,5 @@ $(document).ready(function() {
     });
     $(window).capslockstate();
 });
+var basePath = '<?php echo $this->basePath(); ?>';
 </script>

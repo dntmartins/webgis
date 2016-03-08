@@ -1,7 +1,7 @@
 <div class="container">
 	<div class="row">
 		<div class="col-md-12" style="text-align: justify;">
-			<img width="120" height="100" src="<?php echo "/project/getLogo?id=".$project->prjId ?>" />
+			<img width="120" height="100" src="<?php echo $this->basePath()."/project/getLogo?id=".$project->prjId ?>" />
 			<h1><?php echo $this->project->projectName; ?></h1>
 			<?php echo $this->project->description;?>
 			<br />

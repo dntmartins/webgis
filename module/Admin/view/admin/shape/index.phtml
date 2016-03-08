@@ -3,7 +3,7 @@
 	<br /> <br /> <br />
 	<div class="form-group">
 		<label>Projeto:</label> 
-		<select id="prjs" name="prjs"
+		<select id="prjs" name="prjs" onchange="setOlderAndNewerDates()"
 			class="required form-control" rel="tooltip" data-container="body"
 			data-placement="bottom" title="Selecione um projeto">
 			<option value="">Projetos</option>
@@ -37,3 +37,6 @@
 	<a class="btn btn-primary" href="javascript:removeShapes();"><span
 		class="glyphicon glyphicon-trash"></span> Remover</a> <br />
 </div>
+<script>
+var basePath = '<?php echo $this->basePath(); ?>';
+</script>

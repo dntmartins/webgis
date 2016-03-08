@@ -7,6 +7,8 @@ use Storage\Entity\RolePrivilege;
 use Zend\I18n\Validator\Alnum;
 use Zend\Validator\StringLength;
 use Main\Controller\MainController;
+use Main\Helper\LogHelper;
+
 
 class RoleController extends MainController
 {
@@ -24,7 +26,8 @@ class RoleController extends MainController
     		}
     		return true;
     	} catch (\Exception $e) {
-    		return false;
+			LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage() ."- Linha: " . __LINE__);
+    		return null;
     	}
     }
     
@@ -42,28 +45,41 @@ class RoleController extends MainController
     				if($formData['id'])
     					$ignoreId = $formData['id'];
     				if($name){
-	    				if(!$this->verifyDuplicateName($name, $ignoreId)){
+    					$verifyName = $this->verifyDuplicateName($name, $ignoreId);
+	    				if($verifyName == true){
 	    					$response->setContent(\Zend\Json\Json::encode(array(
     							'status' => true,
     							'isLogged' => true
 	    					)));
 	    					return $response;
 	    				}
-	    				else{
+	    				else if($verifyName == false){
 	    					$response->setContent(\Zend\Json\Json::encode(array(
     							'status' => false,
     							'isLogged' => true
 	    					)));
 	    					return $response;
 	    				}
-    				}
+	    				else{
+	    					$response->setContent(\Zend\Json\Json::encode(array(
+	    							'status' => false,
+	    							'isLogged' => true,
+	    							'Não foi possível verificar se o nome do perfil já existe'
+	    					)));
+	    					return $response;
+	    				}
+	    				
+    				}else{
+						LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: Variável name vazia. - Linha: " . __LINE__);
+					}
     			}
     		}
     	} catch (\Exception $e) {
-    		$this->showMessage('Não foi possível verificar o nome', 'admin-error');
+			LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage() ."- Linha: " . __LINE__);
     		$response->setContent(\Zend\Json\Json::encode(array(
     				'status' => false,
-    				'isLogged' => true
+    				'isLogged' => true,
+    				'msg' => 'Não foi possível verificar se o nome do perfil já existe' 
     		)));
     		return $response;
     	}
@@ -85,6 +101,7 @@ class RoleController extends MainController
             }
             return $this->showMessage('Você precisa fazer o login para realizar essa operação', 'home-error', '/');
         } catch (\Exception $e) {
+			LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage() ."- Linha: " . __LINE__);
         	return $this->showMessage('Não foi possível recuperar os perfis cadastrados', 'home-error', '/');
         }
     }
@@ -119,19 +136,30 @@ class RoleController extends MainController
     						if($id)
     							$url .= '?id='.$role->rolId;
     						return $this->showMessage("O campo nome é obrigatório, não pode conter caracteres especiais e deve ter no minimo 4 e no máximo 50 caracteres.", 'admin-error', $url);
-    					}
+    					}else{
+							LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: Erro ao validar variável name. - Linha: " . __LINE__);		
+						}
     					$role->name = $name;
     					$role->isAdmin = 0;
     					
     					$privileges = $formData['privileges'];
     					if ($privileges) {
+    						foreach ($privileges as $priId){
+    							$pri = $privilegeService->getById($priId);
+    							if($pri->name == 'Administrar usuários e permissões'){
+    								$role->isAdmin = true;
+    								break;
+    							}
+    						}
     						if($id){
     							$roleService->begin();
     							if($roleService->updateRole($role)){
     								if(!$rolePrivilegeService->removeAllByRole($role)){
     									$roleService->rollback();
     									return $this->showMessage('Não foi possível editar o perfil.', 'admin-error', '/role/form?id='.$role->rolId);
-    								}
+    								}else{
+										LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: Erro na execução do método removeAllByRole. - Linha: " . __LINE__);		
+									}
     							}
     							else
     								return $this->showMessage('Não foi possível editar o perfil.', 'admin-error', '/role/form?id='.$role->rolId);
@@ -197,7 +225,8 @@ class RoleController extends MainController
 			$response->setContent ( \Zend\Json\Json::encode ( array ('status' => false, 'isLogged' => false, 'permitted' => true,) ) );
 			return $response;
     	} catch (\Exception $e) {
-			return $this->showMessage('Não foi possível realizar essa operação', 'home-error', '/');
+			LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage() ."- Linha: " . __LINE__);
+    		return $this->showMessage('Não foi possível realizar essa operação', 'home-error', '/');
     	}
     }
 
@@ -216,16 +245,17 @@ class RoleController extends MainController
                     $rolePrivilegeService = $serviceLocator->get('Storage\Service\RolePrivilegeService');
                     $role = $roleService->getById($role_id);
                     if ($roleService->remove($role_id) != null) {
-                    	$this->showMessage('O perfil foi removido com sucesso', 'admin-success');
                         $response->setContent(\Zend\Json\Json::encode(array(
                         	'status' => true,
-                        	'isLogged' => true
+                        	'msg' => 'O perfil foi removido com sucesso!',
+                        	'rolId' => $role_id
                         )));
 					} else {
-                    	$errorMessage = 'O perfil <b>'. $role->name .'</b> não pode ser removido, pois ';
+                    	$errorMessage = 'O perfil <b>'. $role->name .'</b> não pode ser removido';
                     	$userService = $serviceLocator->get('Storage\Service\UserService');
                     	$associatedUsers = $userService->listByRole($role->rolId);
                     	if($associatedUsers){
+                    		$errorMessage .= ', pois ';
                     		$usersCount = count($associatedUsers);
                     		if($usersCount > 1)
                     			$errorMessage .= 'os usuários ';
@@ -250,24 +280,28 @@ class RoleController extends MainController
                     	}
                         $response->setContent(\Zend\Json\Json::encode(array(
                         	'status' => false,
-                            'msg' => $errorMessage,
-                        	'isLogged' => true
+                            'msg' => $errorMessage
                         )));
                     }
                     return $response;
                 }
-				$this->showMessage('Você não possui permissões para realizar essa operação.', 'home-error');
-				$response->setContent ( \Zend\Json\Json::encode ( array ('status' => false, 'isLogged' => true) ) );
+                $response->setContent(\Zend\Json\Json::encode(array(
+                		'status' => false,
+                		'msg' => 'Você não possui permissões para realizar essa operação.'
+                )));
 				return $response;
 			}
 			$this->showMessage('Você precisa fazer o login para realizar essa operação', 'home-error');
-			$response->setContent ( \Zend\Json\Json::encode ( array ('status' => false, 'isLogged' => false, 'permitted' => true,) ) );
+			$response->setContent(\Zend\Json\Json::encode(array(
+                		'status' => false,
+                		'msg' => 'Você precisa fazer o login para realizar essa operação'
+            )));
 			return $response;
         } catch (\Exception $e) {
-        	$this->showMessage('Não foi possível remover a permissão', 'admin-error');
+			LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage() ."- Linha: " . __LINE__);
             $response->setContent(\Zend\Json\Json::encode(array(
                 'status' => false,
-            	'isLogged' => true
+            	'msg' => 'Não foi possível remover o perfil'
             )));
             return $response;
         }

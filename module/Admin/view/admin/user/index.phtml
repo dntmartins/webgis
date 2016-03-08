@@ -11,6 +11,7 @@
 			<thead class="sortable">
 				<tr>
 					<th>Nome</th>
+					<th>Login</th>
 					<th>Email</th>
 					<th>Perfil</th>
 					<th>Ação</th>
@@ -20,12 +21,13 @@
 		    <tbody>
 		    <?php foreach($this->users as $user): ?>
 		    <tr>
-				<td class="<?php !$user->active?print 'link-disable':'' ?>"><?php echo $user->name; ?></td>
-				<td class="<?php !$user->active?print 'link-disable':'' ?>"><?php echo $user->email; ?></td>
-				<td class="<?php !$user->active?print 'link-disable':'' ?>"><?php echo $user->rol->name; ?></td>
+				<td id="userName<?php echo $user->useId ?>" class="<?php !$user->active?print 'link-disable':'' ?>"><?php echo $user->name; ?></td>
+				<td id="userLogin<?php echo $user->useId ?>" class="<?php !$user->active?print 'link-disable':'' ?>"><?php echo $user->login; ?></td>
+				<td id="userEmail<?php echo $user->useId ?>" class="<?php !$user->active?print 'link-disable':'' ?>"><?php echo $user->email; ?></td>
+				<td id="userRol<?php echo $user->useId ?>" class="<?php !$user->active?print 'link-disable':'' ?>"><?php echo $user->rol->name; ?></td>
 				<td>
-					<a class="glyphicon glyphicon-edit<?php !$user->active?print ' link-disable':''?>" href='<?php echo $this->basePath()."/user/form?id=".$user->useId; ?>' rel="tooltip" data-container="body" data-placement="bottom" title="Modificar informações do usuário"></a>
-					<a class="glyphicon <?php $user->active?print ' glyphicon-ban-circle ':print ' glyphicon-ok-circle' ?><?php $this->loggedUser->useId == $user->useId?print ' link-disable': ''?>" <?php $user->active?print "href='javascript:disableUser($user->useId, \"$this->basePath/user/disable\");'":print "href='javascript:enableUser($user->useId, \"$this->basePath/user/enable\");'" ?> rel="tooltip" data-container="body" data-placement="bottom" title="<?php $user->active?print 'Desativar usuário':print 'Ativar usuário' ?>"></a>
+					<a id="editUserBtn<?php echo $user->useId ?>" class="glyphicon glyphicon-edit<?php !$user->active?print ' link-disable':''?>" href='<?php echo $this->basePath()."/user/form?id=".$user->useId; ?>' rel="tooltip" data-container="body" data-placement="bottom" title="Modificar informações do usuário"></a>
+					<a id="enableDisableUserBtn<?php echo $user->useId ?>" class="glyphicon <?php $user->active?print ' glyphicon-ban-circle ':print ' glyphicon-ok-circle' ?><?php $this->loggedUser->useId == $user->useId?print ' link-disable': ''?>" <?php $user->active?print "href='javascript:disableUser($user->useId, \"$this->basePath/user/disable\");'":print "href='javascript:enableUser($user->useId, \"$this->basePath/user/enable\");'" ?> rel="tooltip" data-container="body" data-placement="bottom" title="<?php $user->active?print 'Desativar usuário':print 'Ativar usuário' ?>"></a>
 				</td>
 			</tr>
 		    <?php endforeach; }?>

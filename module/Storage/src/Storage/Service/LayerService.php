@@ -5,6 +5,7 @@ use Doctrine\ORM\EntityManager;
 use Storage\Entity\Configurator;
 use Doctrine\ORM\Query\ResultSetMapping;
 use Doctrine\ORM\Query;
+use Main\Helper\LogHelper;
 
 class LayerService extends AbstractService {
 
@@ -15,19 +16,22 @@ class LayerService extends AbstractService {
     
     public function addLayer($layer) {
 	    try {
-	    		$sql="INSERT INTO layer (sld_id,prj_id, datasource_id, official, publicacao_oficial, projection) values(".(($layer->sld)?($layer->sld->sldId):('null')).",".$layer->prj->prjId.",".$layer->datasource->dataId.",". 0 .",null, " . $layer->projection . ")";
-	    		$conn=$this->em->getConnection();
-	    		$stmt = $conn->prepare ($sql);
-	    		$stmt->execute();
-	    		$id = $conn->lastInsertId();
-	    		return $id;
-	    	}catch (\Doctrine\DBAL\ConnectionException $e){
-	    		return false;
-	    	}catch (\Doctrine\DBAL\DBALException $dbalExc){
-	    		return false;
-	    	}catch (\Exception $e){
-	    		return false;
-	    	}
+    		$sql="INSERT INTO layer (sld_id,prj_id, datasource_id, official, projection) values(".(($layer->sld)?($layer->sld->sldId):('null')).",".$layer->prj->prjId.",".$layer->datasource->dataId.",". 0 .", " . $layer->projection . ")";
+    		$conn=$this->em->getConnection();
+    		$stmt = $conn->prepare ($sql);
+    		$stmt->execute();
+    		$id = $conn->lastInsertId();
+    		return $id;
+    	}catch (\Doctrine\DBAL\ConnectionException $e){
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);
+    		return false;
+    	}catch (\Doctrine\DBAL\DBALException $dbalExc){
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$dbalExc->getMessage()." Linha: " . __LINE__);
+    		return false;
+    	}catch (\Exception $e){
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);
+    		return false;
+    	}
     }
   
     public function getById($id) {
@@ -38,6 +42,7 @@ class LayerService extends AbstractService {
         	$layer=$repository->findOneBy($criteria);
         	return $layer;
     	}catch (\Exception $e){
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);
     	    return null;
     	}
     }
@@ -51,9 +56,11 @@ class LayerService extends AbstractService {
     		$conn->commit ();
     		return true;
     	} catch ( \Doctrine\DBAL\DBALException $dbalExc ) {
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$dbalExc->getMessage()." Linha: " . __LINE__);
     		$conn->rollBack ();
     		return false;
     	} catch ( \Exception $e ) {
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);
     		$conn->rollBack ();
     		return false;
     	}
@@ -77,6 +84,7 @@ class LayerService extends AbstractService {
     		$this->em->clear();
     		return $layers;
     	}catch (\Exception $e){
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);
     		return null;
     	}
     }
@@ -100,6 +108,7 @@ class LayerService extends AbstractService {
     			return $sld[0];
     		return null;
     	}catch (\Exception $e){
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);
     		return null;
     	}
     }
@@ -112,18 +121,21 @@ class LayerService extends AbstractService {
     		$aData=$repository->findOneBy($criteria);
     		return $aData;
     	} catch (\Exception $e){
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);
     		return null;
     	}
     }
     
     public function getByPrjID($id){
     	try {
+    		$aData = null;
     		$repository=$this->em->getRepository($this->entity);
     		$criteria=array("prj"=>$id);
     		$orderBy=null;
     		$aData=$repository->findOneBy($criteria);
     		return $aData;
     	} catch (\Exception $e){
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);
     		return null;
     	}
     }

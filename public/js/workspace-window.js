@@ -18,6 +18,7 @@ var showAjaxSuccessMessage = function (msg, appendMsg){
         $("#ajax_workspace_success_msg").html(msg);
     $("#ajax_workspace_success").fadeIn(); 
     $("#ajax_workspace_error").hide();
+    setTimeout( function(){$("#ajax_workspace_success").fadeOut()}, 15000);
     $(".flash-messages").remove();
 };
 
@@ -28,6 +29,18 @@ var showAjaxErrorMessage = function (msg, appendMsg){
         $("#ajax_workspace_error_msg").html(msg);
     $("#ajax_workspace_error").fadeIn();
     $("#ajax_workspace_success").hide();
+    setTimeout( function(){$("#ajax_workspace_error").fadeOut()}, 15000);
+    $(".flash-messages").remove();
+};
+
+var showAjaxWarningMessage = function (msg, appendMsg){
+    if(appendMsg)
+        $("#ajax_workspace_warning_msg").append( "<div>" + msg + "</div>" );
+    else
+        $("#ajax_workspace_warning_msg").html(msg);
+    $("#ajax_workspace_warning").fadeIn(); 
+    $("#ajax_workspace_error").hide();
+    $("#ajax_workspace_sucess").hide();
     $(".flash-messages").remove();
 };
 
@@ -54,7 +67,6 @@ var showLoading = function(doc_id){
 };
 
 var selectNewPrj=function(selectEl) {
-	
 	var prj=selectEl[selectEl.selectedIndex];
 	document.location=basePath + "/workspace?current_prj="+prj.value;
 };
@@ -65,14 +77,19 @@ var setDefaultSld=function(selectEl){
 	if(sld.value != ""){
 		var prjId = $("#combo_box_prj").val();
 	
-		var url = document.location.origin + "/workspace/setDefaultSld?sldId="+sld.value+"&prjId="+prjId;	
+		var url = basePath + "/workspace/setDefaultSld?sldId="+sld.value+"&prjId="+prjId;	
 	
 		var success = function(responseJSON) {
 			if (responseJSON.status) {
 				document.location=basePath + "/workspace?current_sld="+sld.value;
-							
 			} else {
-				showAjaxErrorMessage(responseJSON.msg);
+				if(typeof(responseJSON.warning) !="undefined" && responseJSON.warning){
+					$("#comboSld").val(0);
+					showAjaxWarningMessage(responseJSON.msg);
+				}else{
+					$("#comboSld").val(0);
+					showAjaxErrorMessage(responseJSON.msg);
+				}
 			}
 		};
 	
@@ -93,7 +110,7 @@ var uploadSld = function() {
 	$("#loadingSld").show();
 	$("#uploadSld").addClass("link-disable");
 	
-	var url = document.location.origin + "/workspace/uploadSld";	
+	var url = basePath + "/workspace/uploadSld";	
 	formData = new FormData();
 	sld = null;
 	jQuery.each($('#sld')[0].files, function(i, file) {
@@ -128,9 +145,7 @@ var uploadSld = function() {
 		showAjaxErrorMessage("Ocorreu um erro ao realizar upload do arquivo de estilo");
 		$("#loadingSld").hide();
 	};
-	var always = function() {
-		
-	};
+
 	$.ajax({
 		type: "POST",
 		dataType : "json",
@@ -138,7 +153,6 @@ var uploadSld = function() {
 		data : formData,
 		success : success,
 		error : fail,
-		complete : always,
 		cache: false,
 		contentType: false,
 	    processData: false
@@ -152,7 +166,7 @@ var uploadShape = function(){
 	$("#progress-div").show();
 	$("#uploadShape").addClass("link-disable");
 	$("#escolher-shape").addClass("link-disable");
-	var url = document.location.origin + "/workspace/uploadShapeFile";
+	var url = basePath + "/workspace/uploadShapeFile";
 	var formData = new FormData();
 	
 	jQuery.each($('#shape')[0].files, function(i, file) {
@@ -160,20 +174,16 @@ var uploadShape = function(){
 	});
 	
 	var success = function(responseJSON) {
-		if(responseJSON.isLogged){
-			if (responseJSON.status) {
-				$('#progress-bar').css('width', 25+'%');
-				extractShapeFile();
-			} else {
-				$("#progress-div").hide();
-				$("#escolher-shape").removeClass("link-disable");
-				showAjaxErrorMessage(responseJSON.msg);
-			}
-			$("#shape").replaceWith($("#shape").clone());
-			$("#shapeFileName").html("");
-		}else{
-			document.location.reload(true);
+		if (responseJSON.status) {
+			$('#progress-bar').css('width', 25+'%');
+			extractShapeFile();
+		} else {
+			$("#progress-div").hide();
+			$("#escolher-shape").removeClass("link-disable");
+			showAjaxErrorMessage(responseJSON.msg);
 		}
+		$("#shape").replaceWith($("#shape").clone());
+		$("#shapeFileName").html("");
 	};
 
 	var fail = function() {
@@ -183,10 +193,6 @@ var uploadShape = function(){
 		$("#shapeFileName").html("");
 	};
 	
-	var always = function() {
-		
-	};
-	
 	$.ajax({
 		type: "POST",
 		dataType : "json",
@@ -194,7 +200,6 @@ var uploadShape = function(){
 		data : formData,
 		success : success,
 		error : fail,
-		complete : always,
 		cache: false,
 		contentType: false,
 	    processData: false
@@ -204,7 +209,7 @@ var uploadShape = function(){
 var extractShapeFile = function (){
 	$('#progress-bar').css('color', 'white');
 	$('#progress-bar').html("Extraindo arquivos...");
-	var url = document.location.origin + "/workspace/extractShapeFile";
+	var url = basePath + "/workspace/extractShapeFile";
 	
 	var success = function(responseJSON) {
 		if (responseJSON.status) {
@@ -223,17 +228,12 @@ var extractShapeFile = function (){
 		showAjaxErrorMessage("Ocorreu um erro ao realizar upload do Shapefile");
 	};
 	
-	var always = function() {
-		
-	};
-	
 	$.ajax({
 		type: "POST",
 		dataType : "json",
 		url : url,
 		success : success,
 		error : fail,
-		complete : always,
 		cache: false,
 		contentType: false,
 	    processData: false
@@ -242,7 +242,7 @@ var extractShapeFile = function (){
 
 var validateShapeDbf = function (){
 	$('#progress-bar').html("Validando Shapefile...")
-	var url = document.location.origin + "/workspace/validateShapeDbf";
+	var url = basePath + "/workspace/validateShapeDbf";
 	var success = function(responseJSON) {
 		if (responseJSON.status) {
 			$('#progress-bar').css('width', 75+'%');
@@ -259,17 +259,12 @@ var validateShapeDbf = function (){
 		$("#progress-div").hide();
 		showAjaxErrorMessage("Ocorreu um erro ao realizar upload do Shapefile");
 	};
-	
-	var always = function() {
-		
-	};
 	$.ajax({
 		type: "POST",
 		dataType : "json",
 		url : url,
 		success : success,
 		error : fail,
-		complete : always,
 		cache: false,
 		contentType: false,
 	    processData: false
@@ -280,7 +275,7 @@ var importShapeToDB = function() {
 	$('#progress-bar').html("Importando para PostGIS...")
 	$("#loadingShp").show();
 	$("#uploadShape").addClass("link-disable");
-	var url = document.location.origin + "/workspace/importShapeToDB";
+	var url = basePath + "/workspace/importShapeToDB";
 	var formData = new FormData();
 	
 	jQuery.each($('#shape')[0].files, function(i, file) {
@@ -348,7 +343,7 @@ var showSldFileName = function(){
 	 if(extensao != ".sld"){
 		 $("#sldName").html("<span style='color : red'>Extensão inválida</span>");
 	 }
-	 else if(fileSize > 51200000){// 50 mb é o limite
+	 else if(fileSize > fileSizeInBytes){
 		$("#sldName").html("<span style='color : red'>Tamanho do sld excede o limite</span>");
 		$("#uploadSld").addClass("link-disable");
 	}else{
@@ -366,7 +361,7 @@ var showShapeFileName = function(){
 		$("#shapeFileName").html("<span style='color : red'>Escolha um arquivo .zip</span>");
 		$("#uploadShape").addClass("link-disable");
 	}
-	else if(fileSize > 51200000){ // 50 mb é o limite
+	else if(fileSize > fileSizeInBytes){
 		$("#shapeFileName").html("<span style='color : red'>Tamanho do Shapefile excede o limite</span>");
 		$("#uploadShape").addClass("link-disable");
 	}else{
@@ -376,7 +371,7 @@ var showShapeFileName = function(){
 }
 
 var showValidationRules = function() {
-	var url = document.location.origin + "/workspace/getDbfJSON";
+	var url = basePath + "/workspace/getDbfJSON";
 	var template = "<ul>";
 	var success = function(responseJSON) {
 		$.each(responseJSON, function(index,jsonObject){
@@ -395,7 +390,13 @@ var showValidationRules = function() {
 		template += "</ul>"
 		rules = "<ol>"+
 					"<li>"+
+						"Verifica se o tamanho do arquivo não excede "+fileSizeString+";"+
+					"</li>"+
+					"<li>"+
 						"Verificação da existência dos 4 arquivos (shp, shx, prj, dbf) - Demais extensões são ignoradas. Não é aceito mais de um shapefile no pacote;"+
+					"</li>"+
+					"<li>"+
+						"Verificação da existencia de diretórios/pastas no arquivo zip (Arquivo zip não deve conter pastas);"+
 					"</li>"+
 					"<li>"+
 						"Descompactação do arquivo zip;"+
