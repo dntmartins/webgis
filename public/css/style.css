@@ -203,7 +203,7 @@ a.glyphicon {
 	right: 10px;
     display: none;
 }
-#logo-inpe-simples{
-	float:left;
-	width:70px;	
+#webgis-logo{
+	display:inline-block;
+	width:150px;	
 }

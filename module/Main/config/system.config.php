@@ -9,7 +9,7 @@
 		"datasource" => array(
 			"dbName" => "postgres",
 			"login" => "postgres",
-			"password" => "root",
+			"password" => "tgbanco",
 			"host" => "localhost",
 			"port" => 5432
 		)

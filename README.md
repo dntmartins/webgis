@@ -26,6 +26,9 @@ sudo apt-get install postgresql-9.x-postgis-2.1
 ###Postgres e Postgis (ATENÇÃO: caso o servidor de dados geográficos NÃO fique no mesmo servidor da aplicação)
 sudo apt-get install postgis
 
+###Biblioteca Postgres para PHP
+sudo apt-get install php5-pgsql
+
 ####Instalação limpa
 
 Você provavelmente quer deixar o servidor de aplicação limpo, livre de serviços e aquivos desnecessário.
