@@ -203,7 +203,25 @@ a.glyphicon {
 	right: 10px;
     display: none;
 }
+
 #webgis-logo{
 	display:inline-block;
 	width:150px;	
+}
+
+.ol-scale-line{
+	bottom: 7px;
+    left: 50%;
+    padding: 5px
+}
+
+#toolbar{
+	position: absolute;
+	padding:12px;
+	margin:0px 0 0 55px;
+	z-index: 999999;
+}
+
+#toolbar > p{
+	display:inline-block;
 }

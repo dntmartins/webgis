@@ -7,6 +7,9 @@ if(get_class($session->user)=='Storage\Entity\User'){
 	$user=$session->user;
 }
 ?>
+
+<link rel="stylesheet" href="css/ol.css" type="text/css">
+
 <html lang="en">
     <head>
         <meta charset="utf-8">
@@ -23,10 +26,14 @@ if(get_class($session->user)=='Storage\Entity\User'){
                         ->prependStylesheet($this->basePath() . '/css/font-awesome.min.css')
                         ->prependStylesheet($this->basePath() . '/css/bootstrap-theme.min.css')
                         ->prependStylesheet($this->basePath() . '/css/bootstrap.min.css')
-                        ->prependStylesheet($this->basePath() . '/css/tablesorter.css');
+                        ->prependStylesheet($this->basePath() . '/css/tablesorter.css')
+                        ->prependStylesheet($this->basePath() . '/css/ol.css')
+         				->prependStylesheet($this->basePath() . '/css/materialdesignicons.min.css');
         ?>
         <!-- Scripts -->
         <?php echo $this->headScript()
+        	->prependFile($this->basePath() . '/js/map.js')
+        	->prependFile($this->basePath() . '/js/ol-debug.js')
         	->prependFile($this->basePath() . '/js/jquery.mask.min.js')
         	->prependFile($this->basePath() . '/js/user-config-validate.js')
         	->prependFile($this->basePath() . '/js/validate-forms.js')
