@@ -77,7 +77,7 @@ class WorkspaceController extends MainController {
 				$acl = $this->getServiceLocator ()->get ( 'Admin\Permissions\Acl' );
 				$uploadShape = $acl->isAllowed ( $auth_user->rol->name, "Área de trabalho", "Upload de shapefile" );
 				$uploadSld = $acl->isAllowed ( $auth_user->rol->name, "Área de trabalho", "Upload de sld" );
-				
+				$tableName = strtolower($auth_user->name . "_table");
 				$shapes = null;
 				if($current_prj){
 					$shapes = $shapefileService->listByProjectId ( $current_prj->prjId );
@@ -96,7 +96,8 @@ class WorkspaceController extends MainController {
 					'uploadShape' => $uploadShape,
 					'uploadSld' => $uploadSld,
 					'fileSizeInBytes' => $fileSizeiBytes,
-					'fileSizeString' => $fileSizeString
+					'fileSizeString' => $fileSizeString,
+					'tableName' => $tableName
 				);
 			} else {
 				return $this->showMessage('Sua sessão expirou, favor relogar', 'home-error', '/');

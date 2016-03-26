@@ -20,21 +20,15 @@ class Layer
      * @ORM\GeneratedValue(strategy="IDENTITY")
      */
     private $layerId;
-
     /**
-     * @var boolean
+     * @var \Storage\Entity\User
      *
-     * @ORM\Column(name="official", type="boolean", nullable=false)
+     * @ORM\ManyToOne(targetEntity="Storage\Entity\User")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="use_id", referencedColumnName="use_id")
+     * })
      */
-    private $official;
-
-    /**
-     * @var \DateTime
-     *
-     * @ORM\Column(name="publicacao_oficial", type="datetime", nullable=true)
-     */
-    private $publicacaoOficial;
-
+    private $use;
     /**
      * @var \Storage\Entity\Project
      *
@@ -44,27 +38,6 @@ class Layer
      * })
      */
     private $prj;
-
-    /**
-     * @var \Storage\Entity\Datasource
-     *
-     * @ORM\ManyToOne(targetEntity="Storage\Entity\Datasource")
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="datasource_id", referencedColumnName="data_id")
-     * })
-     */
-    private $datasource;
-
-    /**
-     * @var \Storage\Entity\Sld
-     *
-     * @ORM\ManyToOne(targetEntity="Storage\Entity\Sld",  cascade={"persist"})
-     * @ORM\JoinColumns({
-     *   @ORM\JoinColumn(name="sld_id", referencedColumnName="sld_id", nullable=true)
-     * })
-     */
-    private $sld;
-    
     /**
      * @var integer
      *

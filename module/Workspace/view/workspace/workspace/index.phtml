@@ -46,7 +46,7 @@
 							<div id="edit" class="btn btn-default">
 								<i class="mdi mdi-tooltip-edit"></i>
 							</div>
-							<div id="erase" class="btn btn-default btn-large">
+							<div id="erase" class="btn btn-default">
 								<i class="mdi mdi-delete"></i>
 							</div>
 						</div>
@@ -55,13 +55,13 @@
 				</div>
 			</div>
 			<div class="col-md-12 column">
-				<br /> <span class="lead">Histórico de arquivos carregados</span>
+				<br /> <span class="lead">Histórico de commits</span>
 				<div class="bordaPrj table-responsive table-overflow">
 					<table id="shapeTable" class="table table-striped table-bordered">
 					<?php if(empty($this->shapes)){?>
 						<thead id="noshapeThead">
 							<tr>
-								<th>Nenhum Shapefile foi carregado</th>
+								<th>Nenhum commit realizado</th>
 							</tr>
 						</thead>
 						<thead hidden="hidden" id="shapeThead">
@@ -72,9 +72,6 @@
 						</thead>
 						<tbody>
 					<?php }else {?>
-						
-						
-						
 						<thead id="shapeThead">
 							<tr>
 								<th>Arquivo</th>
@@ -237,4 +234,5 @@ var basePath = '<?php echo $this->basePath(); ?>';
 var fileSizeInBytes = '<?php echo $this->fileSizeInBytes; ?>';
 var fileSizeString = '<?php echo $this->fileSizeString; ?>';
 var projectName = '<?php echo $this->current_prj->projectName; ?>';
+var tableName = '<?php echo $this->tableName; ?>';
 </script>

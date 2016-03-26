@@ -16,7 +16,7 @@ class LayerService extends AbstractService {
     
     public function addLayer($layer) {
 	    try {
-    		$sql="INSERT INTO layer (sld_id,prj_id, datasource_id, official, projection) values(".(($layer->sld)?($layer->sld->sldId):('null')).",".$layer->prj->prjId.",".$layer->datasource->dataId.",". 0 .", " . $layer->projection . ")";
+    		$sql="INSERT INTO layer (use_id,prj_id, projection) values(".(($layer->use)?($layer->use->useId):('null')).",".$layer->prj->prjId.",". $layer->projection . ")";
     		$conn=$this->em->getConnection();
     		$stmt = $conn->prepare ($sql);
     		$stmt->execute();
@@ -34,10 +34,10 @@ class LayerService extends AbstractService {
     	}
     }
   
-    public function getById($id) {
+    public function getByUserId($id) {
         try {
         	$repository=$this->em->getRepository($this->entity);
-        	$criteria=array("layerId"=>$id);
+        	$criteria=array("useId"=>$id);
         	$orderBy=null;
         	$layer=$repository->findOneBy($criteria);
         	return $layer;

@@ -15,7 +15,7 @@ $(document).ready(function() {
 		view : new ol.View({
 			projection: "EPSG:3857",
 			center : [ -11000000, 4600000 ],
-			zoom : 4
+			zoom : 2
 		}),
 		controls: ol.control.defaults().extend([
 			new ol.control.ScaleLine(),
@@ -35,7 +35,7 @@ $(document).ready(function() {
 				features : features,
 				url : function(extent) {
 					return 'http://localhost:8080/geoserver/wfs?service=WFS&'
-							+ 'version=1.1.0&request=GetFeature&typename=' + projectName + ':playa_samplepoint&'
+							+ 'version=1.1.0&request=GetFeature&typename=' + projectName + ':' +tableName+'&'
 							+ 'outputFormat=application/json&srsname=EPSG:3857&'
 							+ 'bbox=' + extent.join(',') + ',EPSG:3857';
 				},
@@ -155,7 +155,7 @@ $(document).ready(function() {
 	var transactWFS = function(p,f,ft) {
 		var formatWFS = new ol.format.WFS();
 		var formatGML = new ol.format.GML({
-			featureNS: 'http://www.opengeospatial.net/cite',
+			featureNS: 'http://'+projectName,
 			featureType: ft,
 			srsName: 'EPSG:3857'
 			});
@@ -210,7 +210,7 @@ $(document).ready(function() {
 		map.addInteraction(erase);
 		erase.getFeatures().on('change:length', function(e) {
 			var patt = new RegExp("\\w*");
-		    var res = patt.exec(e.target.item(0).getId());
+		    var res = tableName;
 			transactWFS('delete',e.target.item(0),res);
 	    });
 		return false;
@@ -224,7 +224,7 @@ $(document).ready(function() {
 			  //var feature = transformFeaturePrj(e.feature);
 			  var patt = new RegExp("\\w*");
 			  console.log(e.feature);
-		      var res = 'playa_samplepoint';
+		      var res = tableName;
 			  transactWFS('insert',e.feature,res);
 			  });
 		return false;

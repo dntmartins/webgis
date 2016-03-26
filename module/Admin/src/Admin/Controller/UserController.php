@@ -3,16 +3,11 @@ namespace Admin\Controller;
 
 use Storage\Entity\User;
 use Storage\Service\UserService;
-use Zend\Session\Container;
 use Storage\Entity\Access;
-use Zend\I18n\Validator\Alnum;
-use Zend\I18n\Validator\Alpha;
-use Zend\I18n\Validator\Int;
 use Zend\Validator\StringLength;
-use Zend\I18n\Validator\PhoneNumber;
-use Zend\I18n\Validator\Zend\I18n\Validator;
 use Main\Controller\MainController;
 use Main\Helper\LogHelper;
+use Storage\Entity\Layer;
 
 class UserController extends MainController {
 	public function indexAction() {
@@ -210,6 +205,7 @@ class UserController extends MainController {
 									$access = new Access ();
 									$access->prj = $project;
 									$access->use = $user;
+									$this->createPostGISTable($project, $user);
 									array_push ( $accessList, $access );
 								}
 								if ($accessList) {
@@ -245,6 +241,72 @@ class UserController extends MainController {
 			return $this->showMessage('Não foi possível associar o usuário aos subprojetos.', 'home-error', '/');
 		}
 	}
+	
+	private function createPostGISTable($project, $user){
+		$serviceLocator = $this->getServiceLocator();
+		$datasourceService = $serviceLocator->get ( 'Storage\Service\DataSourceService' );
+		$config = $this->getConfiguration();
+		$dbConn = pg_connect('host='.$config["datasource"]["host"].' dbname='.strtolower($project->projectName).' user='.$config["datasource"]["login"].' password='.$config["datasource"]["password"].' connect_timeout=5');
+		$tableName = strtolower($user->name . '_table');
+		if($dbConn!==false){
+			$sql = 'CREATE TABLE public.' . $tableName . ' (id serial PRIMARY KEY)';
+			$query = pg_query($dbConn, $sql);
+			if($query!==false){
+				/*if(pg_connection_status() === 0) {
+					pg_close($dbConn);
+				}*/
+				$geomColumn = "SELECT AddGeometryColumn ('public','". $tableName ."','geom',3857,'POINT',2)";
+				$query = pg_query($dbConn, $geomColumn);
+				if ($query!==false){
+					pg_close($dbConn);
+					$layerService = $this->serviceLocator->get ( 'Storage\Service\LayerService' );
+					$layer = new Layer();
+					$layer->prj = $project;
+					$layer->use = $user;
+					$layer->projection = "3857";
+					$resultLayer = $layerService->addLayer($layer);
+					if(!$resultLayer){
+						$this->deleteDatabase($project->projectName);
+					}else{
+						$this->publishLayer($tableName, $project);
+					}
+					return true;
+				}else{
+					$this->deleteDatabase($project->projectName);
+					pg_close($dbConn);
+					return false;
+				}
+			}else{
+				//$this->deleteDatabase($project->projectName);
+				pg_close($dbConn);
+				return false;
+			}
+		}else{
+			return false;
+		}
+	}
+	
+	private function publishLayer($tableName, $prj){
+		try{
+			$prjName = $prj->projectName;
+			$geoRestService = $this->serviceLocator->get ( 'Storage\Service\GeoServerRESTService' );
+			$geoServerService = $this->serviceLocator->get ( 'Storage\Service\GeoServerService' );
+			$shape = strtolower(pathinfo($tableName, PATHINFO_FILENAME));
+			$geoserver = $geoServerService->getByPrj($prj->prjId);
+			$geoServerLogin = $geoserver->login.':'.$geoserver->pass;
+			$responseGeoServer =$geoRestService->createLayer($geoServerLogin, $prjName, $shape, $geoserver->host);
+			if ($responseGeoServer){
+				return true;
+			}else{
+				LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: Não foi possível publicar layer no geoserver" . " - Linha: " . __LINE__);
+				return false;
+			}
+		} catch (\Exception $e) {
+			LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: " . $e->getMessage() . " - Linha: " . $e->getLine());
+			return false;
+		}
+	}
+	
 	public function disableAction() {
 		try {
 			$response = $this->getResponse();
