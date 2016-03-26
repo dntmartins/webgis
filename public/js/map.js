@@ -152,11 +152,11 @@ $(document).ready(function() {
 	}
 	
 	//wfs-t
-	var transactWFS = function(p,f,ft) {
+	var transactWFS = function(p,f) {
 		var formatWFS = new ol.format.WFS();
 		var formatGML = new ol.format.GML({
 			featureNS: 'http://'+projectName,
-			featureType: ft,
+			featureType: tableName,
 			srsName: 'EPSG:3857'
 			});
 		switch(p) {
@@ -209,9 +209,7 @@ $(document).ready(function() {
 		map.addInteraction(eraseHover);
 		map.addInteraction(erase);
 		erase.getFeatures().on('change:length', function(e) {
-			var patt = new RegExp("\\w*");
-		    var res = tableName;
-			transactWFS('delete',e.target.item(0),res);
+			transactWFS('delete',e.target.item(0));
 	    });
 		return false;
 	});
@@ -222,10 +220,7 @@ $(document).ready(function() {
 		addInteraction("Point");
 		draw.on('drawend', function(e) {
 			  //var feature = transformFeaturePrj(e.feature);
-			  var patt = new RegExp("\\w*");
-			  console.log(e.feature);
-		      var res = tableName;
-			  transactWFS('insert',e.feature,res);
+			  transactWFS('insert',e.feature);
 			  });
 		return false;
 	});

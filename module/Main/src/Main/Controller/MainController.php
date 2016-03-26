@@ -464,4 +464,62 @@ class MainController extends AbstractActionController
     	}
     	return $template;
     }
+    
+    public function deleteDatabase($prjName){
+    	$serviceLocator = $this->getServiceLocator();
+    	$datasourceService = $serviceLocator->get ( 'Storage\Service\DataSourceService' );
+    	$config = $this->getConfiguration();
+    	LogHelper::writeOnLog("Em deleteDatabase, continue.");
+    
+    	if ($prjName != null){
+    		$db =  pg_connect('host='.$config["datasource"]["host"].' dbname='.$config["datasource"]["dbName"].' user='.$config["datasource"]["login"].' password='.$config["datasource"]["password"].' connect_timeout=5');
+    		if ($db != null){
+    			$sql = "DROP DATABASE ". strtolower($prjName);
+    			$query = pg_query($db, $sql);
+    			if ($query!==false){
+    				LogHelper::writeOnLog("Removeu o banco, continue.");
+    				pg_close($db);
+    				return true;
+    			}else{
+    				LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: Falhou ao remover o banco - Linha: " . __LINE__);
+    				pg_close($db);
+    				return false;
+    			}
+    		}else{
+    			LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: Falhou ao conectar o postgres - Linha: " . __LINE__);
+    			pg_close($db);
+    			return false;
+    		}
+    	}else{
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: Variável prjName não inicializada - Linha: " . __LINE__);
+    		return false;
+    	}
+    }
+    
+    public function deleteTable($tableName, $dbName){
+    	$serviceLocator = $this->getServiceLocator();
+    	$datasourceService = $serviceLocator->get ( 'Storage\Service\DataSourceService' );
+    	$config = $this->getConfiguration();
+    	$tableName = strtolower($tableName);
+    	if ($tableName != null){
+    		$db =  pg_connect('host='.$config["datasource"]["host"].' dbname='.strtolower($dbName).' user='.$config["datasource"]["login"].' password='.$config["datasource"]["password"].' connect_timeout=5');
+    		if ($db != null){
+    			$sql = "DROP TABLE public.". strtolower($tableName);
+    			$query = pg_query($db, $sql);
+    			if ($query!==false){
+    				pg_close($db);
+    				return true;
+    			}else{
+    				pg_close($db);
+    				return false;
+    			}
+    		}else{
+    			pg_close($db);
+    			return false;
+    		}
+    	}else{
+    		return false;
+    	}
+    }
+    
 }

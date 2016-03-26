@@ -161,20 +161,15 @@ class UserController extends MainController {
 					$userService = $serviceLocator->get ( 'Storage\Service\UserService' );
 					$projectService = $serviceLocator->get ( 'Storage\Service\ProjectService' );
 					$accessService = $serviceLocator->get ( 'Storage\Service\AccessService' );
-					
 					$projects = $projectService->listAll ();
 					$users = $userService->listAll ();
-					
 					$formData = $this->getFormData ();
-					
 					$user = null;
-					
 					$url = '/user/associateProjects';
 					if($formData['id']){
 						$user = $userService->getById($formData['id']);
 						$url .= '?id='.$user->useId;
 					}
-					
 					$cont = 0;
 					$coord = null;
 					$prjs = null;
@@ -194,22 +189,21 @@ class UserController extends MainController {
 						try {
 							if($user && $prjs) { // Verifica se algum usuário foi selecionado no combo e se pelo menos um projeto foi marcado
 								$userService->begin();
-								if (! $accessService->removeAllByUser ( $user )) { // Remove a associação do usuário aos projetos para depois inserir novamente
+								if (! $accessService->removeAllByUser ( $user )) { //Remove a associação do usuário aos projetos para depois inserir novamente
 									$userService->rollback();
 									return $this->showMessage('Não foi possível associar o usuário aos subprojetos', 'admin-error', $url);
 								}
-								$accessList = array ();
-								foreach ( $prjs as $prjs ) {
-									$project = $projectService->getById ( $prjs );
-									
+								$accessList = array();
+								foreach ($prjs as $prj) {
+									$project = $projectService->getById ($prj);
 									$access = new Access ();
 									$access->prj = $project;
 									$access->use = $user;
 									$this->createPostGISTable($project, $user);
-									array_push ( $accessList, $access );
+									array_push ($accessList, $access);
 								}
 								if ($accessList) {
-									if ($accessService->addAll ( $accessList )){
+									if ($accessService->addAll($accessList)){
 										$userService->commit();
 										return $this->showMessage('Associação concluída com sucesso!', 'admin-success', '/user');
 									}
@@ -266,13 +260,18 @@ class UserController extends MainController {
 					$layer->projection = "3857";
 					$resultLayer = $layerService->addLayer($layer);
 					if(!$resultLayer){
-						$this->deleteDatabase($project->projectName);
+						$this->deleteTable($tableName, $project->projectName);
 					}else{
 						$this->publishLayer($tableName, $project);
+						if($this->createGeoGigRepo($user, $project)){
+							return true;
+						}else{
+							$this->deleteTable($tableName, $project->projectName);
+							return false;
+						}
 					}
-					return true;
 				}else{
-					$this->deleteDatabase($project->projectName);
+					$this->deleteTable($project->projectName, $project->projectName);
 					pg_close($dbConn);
 					return false;
 				}
@@ -298,13 +297,38 @@ class UserController extends MainController {
 			if ($responseGeoServer){
 				return true;
 			}else{
-				LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: Não foi possível publicar layer no geoserver" . " - Linha: " . __LINE__);
 				return false;
 			}
 		} catch (\Exception $e) {
-			LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: " . $e->getMessage() . " - Linha: " . $e->getLine());
 			return false;
 		}
+	}
+	
+	private function createGeoGigRepo($user, $project){
+		$dir = __DIR__;
+		for ($i = 0; $i<5; $i++){
+			$dir = dirname($dir);
+		}
+		$dir = $dir . "/geogig-repositories/" . $project->prjId;
+		if(!is_dir($dir)){
+			if(mkdir ( $dir, 0777, true ) === false){
+				return false;
+			}
+		}
+		
+		$dir = $dir . "/" . strtolower($user->name);
+		if(!is_dir($dir)){
+			if(mkdir ( $dir, 0777, true ) === false){
+				return false;
+			}
+			if(chdir($dir)){
+				//putenv("PATH=/opt/geogig/bin");
+				$command = escapeshellcmd("geogig init");
+				$output = shell_exec($command);
+			}
+		}
+		
+		return true;
 	}
 	
 	public function disableAction() {
