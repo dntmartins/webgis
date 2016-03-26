@@ -199,7 +199,9 @@ class UserController extends MainController {
 									$access = new Access ();
 									$access->prj = $project;
 									$access->use = $user;
-									$this->createPostGISTable($project, $user);
+									if(!$this->createPostGISTable($project, $user)){
+										return $this->showMessage('Não foi possível associar o usuário ao projeto: ' . $project->projectName, 'admin-error', $url);
+									}
 									array_push ($accessList, $access);
 								}
 								if ($accessList) {
@@ -305,29 +307,30 @@ class UserController extends MainController {
 	}
 	
 	private function createGeoGigRepo($user, $project){
-		$dir = __DIR__;
-		for ($i = 0; $i<5; $i++){
-			$dir = dirname($dir);
-		}
+		$dir = $this->getParentDir(__DIR__, 5);
 		$dir = $dir . "/geogig-repositories/" . $project->prjId;
 		if(!is_dir($dir)){
 			if(mkdir ( $dir, 0777, true ) === false){
 				return false;
 			}
 		}
-		
 		$dir = $dir . "/" . strtolower($user->name);
 		if(!is_dir($dir)){
 			if(mkdir ( $dir, 0777, true ) === false){
 				return false;
 			}
 			if(chdir($dir)){
-				//putenv("PATH=/opt/geogig/bin");
 				$command = escapeshellcmd("geogig init");
 				$output = shell_exec($command);
+				if($output === null){
+					$response->setContent(\Zend\Json\Json::encode(array('status' => false,'msg' => "Ocorreu um erro ao criar repositório local")));
+					return false;
+				}
+			}else{
+				$response->setContent(\Zend\Json\Json::encode(array('status' => false,'msg' => "Ocorreu um erro ao criar repositório local")));
+				return false;
 			}
 		}
-		
 		return true;
 	}
 	

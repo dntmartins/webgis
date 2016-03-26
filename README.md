@@ -95,7 +95,7 @@ sudo apt-get install postgresql-client-9.x
 	sudo composer upload:clean (Caso já existam as pastas)
 	sudo composer upload:create
 
-#Permissão PostGIS
+#Permissão PostGIS - Não mais necessário
 1 - Abrir arquivo /etc/postgresql/9.3/main/pg_hba.conf
 	Editar:
 		IPv4 local connections:
@@ -103,6 +103,7 @@ sudo apt-get install postgresql-client-9.x
 	Para:
 		host    all             all             127.0.0.1/32            trust
 2 - Reiniciar o serviço do Postgres
+
 #Setar variável de ambiente para usuário do apache em ambiente Ubuntu 14.04
 Editar /etc/apache2/envvars
 Inserir no final do arquivo: export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/jvm/java-8-oracle/bin:/usr/lib/jvm/java-8-oracle/db/bin:/usr/lib/jvm/java-8-oracle/jre/bin:/opt/geogig/bin"

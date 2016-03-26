@@ -521,5 +521,11 @@ class MainController extends AbstractActionController
     		return false;
     	}
     }
+    public function getParentDir($dir, $levels){
+    	for ($i = 0; $i<$levels; $i++){
+    		$dir = dirname($dir);
+    	}
+    	return $dir;
+    }
     
 }

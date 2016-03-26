@@ -684,4 +684,26 @@ class WorkspaceController extends MainController {
 		}
 		return true;
 	}
+	
+	public function commitAction(){
+		try {
+			$response = $this->getResponse();
+			$dir = $this->getParentDir(__DIR__, 5);
+			$dir = $dir . "/geogig-repositories/" . $this->session->current_prj->prjId . "/" .$this->session->user->name;
+			if(chdir($dir)){
+				$command = escapeshellcmd('geogig commit -m "' .$msg .'"');
+				$output = shell_exec($command);
+				if($output === null){
+					$response->setContent(\Zend\Json\Json::encode(array('status' => false,'msg' => "Ocorreu um erro ao realizar commit")));
+					return $response;
+				}
+			}else{
+				$response->setContent(\Zend\Json\Json::encode(array('status' => false,'msg' => "Ocorreu um erro ao realizar commit")));
+				return $response;
+			}
+			$response->setContent(\Zend\Json\Json::encode(array('status' => true,'msg' => "Commit realizado com sucesso!")));
+			return $response;
+		} catch (\Exception $e) {
+		}
+	}
 }
