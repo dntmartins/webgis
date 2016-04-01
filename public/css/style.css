@@ -219,9 +219,15 @@ a.glyphicon {
 	position: absolute;
 	padding:12px;
 	margin:0px 0 0 55px;
-	z-index: 999999;
+	z-index: 1;
 }
 
 #toolbar > p{
 	display:inline-block;
+}
+
+#commit-modal .modal-content { 
+	z-index: 2;
+    overflow: auto;
+    padding-bottom: 15px;
 }

@@ -112,9 +112,28 @@ class AccessService extends AbstractService {
     		return false;
     	}
     }
+    
+    
+    public function removeByProject($prj){
+    	$sql="DELETE FROM access WHERE prj_id = ".$prj->prjId;
+    
+    	$conn=$this->em->getConnection();
+    	 
+    	try {
+    		$conn->exec($sql);
+    		return true;
+    	}catch (\Doctrine\DBAL\DBALException $dbalExc){
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$dbalExc->getMessage()." Linha: " . __LINE__);
+    		return false;
+    	}catch (\Exception $e){
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);
+    		return false;
+    	}
+    }
+    
     public function getPrjs($user) {
     	try{
-    		$sql="SELECT DISTINCT (a.prj_id) FROM access a where a.use_id != ".$user->useId.";";
+    		$sql="SELECT pr.* FROM access a, project pr where a.use_id = ".$user->useId." and pr.prj_id = a.prj_id;";
     
     		$rsm=new ResultSetMapping();
     		$rsm->addEntityResult('Storage\Entity\Project', 'pr');

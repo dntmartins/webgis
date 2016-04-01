@@ -188,11 +188,29 @@ class UserController extends MainController {
 						}
 						try {
 							if($user && $prjs) { // Verifica se algum usuário foi selecionado no combo e se pelo menos um projeto foi marcado
+								$userPrjs = $accessService->getPrjByUser($user);
 								$userService->begin();
+								if(!$userPrjs){
+									$userService->rollback();
+									return $this->showMessage('Não foi possível associar o usuário aos subprojetos', 'admin-error', $url);
+								}
 								if (! $accessService->removeAllByUser ( $user )) { //Remove a associação do usuário aos projetos para depois inserir novamente
 									$userService->rollback();
 									return $this->showMessage('Não foi possível associar o usuário aos subprojetos', 'admin-error', $url);
 								}
+								
+								foreach($userPrjs as $prjOld){
+									foreach ($prjs as $prjSelected) {
+										if(!($prjOld->prjId == $prjSelected)){
+											$tableName = strtolower($user->name . '_table');
+											$this->deleteTable($tableName, $prjOld->projectName);
+											$dir = $this->getParentDir(__DIR__, 5);
+											$dir = $dir . "/geogig-repositories/" . $prjOld->prjId . "/" . strtolower($user->name);;
+											$this->removeDir($dir);
+										}
+									}
+								}
+								
 								$accessList = array();
 								foreach ($prjs as $prj) {
 									$project = $projectService->getById ($prj);
@@ -239,14 +257,19 @@ class UserController extends MainController {
 	}
 	
 	private function createPostGISTable($project, $user){
+		$tableName = strtolower($user->name . '_table');
 		$serviceLocator = $this->getServiceLocator();
 		$datasourceService = $serviceLocator->get ( 'Storage\Service\DataSourceService' );
 		$config = $this->getConfiguration();
 		$dbConn = pg_connect('host='.$config["datasource"]["host"].' dbname='.strtolower($project->projectName).' user='.$config["datasource"]["login"].' password='.$config["datasource"]["password"].' connect_timeout=5');
-		$tableName = strtolower($user->name . '_table');
 		if($dbConn!==false){
-			$sql = 'CREATE TABLE public.' . $tableName . ' (id serial PRIMARY KEY)';
-			$query = pg_query($dbConn, $sql);
+			$selectTableSQL = 'SELECT * FROM public.' . $tableName;
+			$tableExists = pg_query($dbConn, $selectTableSQL);
+			if($tableExists !== false){
+				return true;
+			}
+			$createTableSQL = 'CREATE TABLE public.' . $tableName . ' (id serial PRIMARY KEY)';
+			$query = pg_query($dbConn, $createTableSQL);
 			if($query!==false){
 				/*if(pg_connection_status() === 0) {
 					pg_close($dbConn);
@@ -273,7 +296,7 @@ class UserController extends MainController {
 						}
 					}
 				}else{
-					$this->deleteTable($project->projectName, $project->projectName);
+					$this->deleteTable($tableName, $project->projectName);
 					pg_close($dbConn);
 					return false;
 				}
@@ -320,14 +343,22 @@ class UserController extends MainController {
 				return false;
 			}
 			if(chdir($dir)){
-				$command = escapeshellcmd("geogig init");
-				$output = shell_exec($command);
-				if($output === null){
-					$response->setContent(\Zend\Json\Json::encode(array('status' => false,'msg' => "Ocorreu um erro ao criar repositório local")));
-					return false;
+				$commands = array(
+						"sudo geogig init", 
+						'sudo geogig config --local user.name "' . $user->name .'"',
+						'sudo geogig config --local user.email "' . $user->email . '"'
+				);
+				foreach($commands as $command){
+					//$output = shell_exec(escapeshellcmd($command));
+					exec(escapeshellcmd($command), $output, $return_var);
+					LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$output."- Linha: " . __LINE__);
+					if($return_var !== 0){
+						$this->removeDir($dir);
+						return false;
+					}
 				}
 			}else{
-				$response->setContent(\Zend\Json\Json::encode(array('status' => false,'msg' => "Ocorreu um erro ao criar repositório local")));
+				$this->removeDir($dir);
 				return false;
 			}
 		}

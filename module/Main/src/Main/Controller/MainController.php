@@ -454,6 +454,15 @@ class MainController extends AbstractActionController
     		throw new \Exception("Ocorreu um erro ao remover o diretório");
     	}
     }
+    
+    public function removeDir($dir){
+    	exec(escapeshellcmd("sudo rm -R " . $dir), $output, $return_var);
+    	if($return_var !== 0){
+    		return false;
+    	}
+    	return true;
+    }
+    
     public function getDbfTemplate(){
     	$templateContent = file_get_contents (getcwd()."/module/Workspace/src/Workspace/dbfTemplate.json" );
     	if($templateContent){
@@ -506,21 +515,20 @@ class MainController extends AbstractActionController
     		if ($db != null){
     			$sql = "DROP TABLE public.". strtolower($tableName);
     			$query = pg_query($db, $sql);
+    			pg_close($db);
     			if ($query!==false){
-    				pg_close($db);
     				return true;
     			}else{
-    				pg_close($db);
     				return false;
     			}
     		}else{
-    			pg_close($db);
     			return false;
     		}
     	}else{
     		return false;
     	}
     }
+    
     public function getParentDir($dir, $levels){
     	for ($i = 0; $i<$levels; $i++){
     		$dir = dirname($dir);

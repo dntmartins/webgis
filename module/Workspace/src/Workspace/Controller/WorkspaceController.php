@@ -687,15 +687,27 @@ class WorkspaceController extends MainController {
 	
 	public function commitAction(){
 		try {
+			$config = $this->getConfiguration();
 			$response = $this->getResponse();
 			$dir = $this->getParentDir(__DIR__, 5);
-			$dir = $dir . "/geogig-repositories/" . $this->session->current_prj->prjId . "/" .$this->session->user->name;
+			$dir = $dir . "/geogig-repositories/" . $this->session->current_prj->prjId . "/" .strtolower($this->session->user->name);
+			$database = strtolower($this->session->current_prj->projectName);
+			$tableName = strtolower($this->session->user->name . '_table');
 			if(chdir($dir)){
-				$command = escapeshellcmd('geogig commit -m "' .$msg .'"');
-				$output = shell_exec($command);
-				if($output === null){
-					$response->setContent(\Zend\Json\Json::encode(array('status' => false,'msg' => "Ocorreu um erro ao realizar commit")));
-					return $response;
+				$msg = "ola";
+				$commands = array(
+						"sudo geogig pg import --database " . $database . " --port 5432 --user " . $config["datasource"]["login"] . " --password " . $config["datasource"]["password"] . " --table " . $tableName,
+						"sudo geogig add",
+						'sudo geogig commit -m "' .$msg .'"',
+				);
+				foreach($commands as $command){
+					exec(escapeshellcmd($command), $output, $return_var);
+					LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$output."- Linha: " . __LINE__);
+					if($return_var !== 0){
+						$response->setContent(\Zend\Json\Json::encode(array('status' => false,'msg' => "Ocorreu um erro ao realizar commit")));
+						$this->removeDir($dir);
+						return $response;
+					}
 				}
 			}else{
 				$response->setContent(\Zend\Json\Json::encode(array('status' => false,'msg' => "Ocorreu um erro ao realizar commit")));

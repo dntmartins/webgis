@@ -176,7 +176,7 @@ $(document).ready(function() {
 		}
 		s = new XMLSerializer();
 		str = s.serializeToString(node);
-		$.ajax('http://localhost:8080/geoserver/wfs',{
+		$.ajax('http://webgis/geoserver/wfs',{
 			type: 'POST',
 			dataType: 'xml',
 			processData: false,

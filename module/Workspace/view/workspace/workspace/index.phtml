@@ -31,16 +31,19 @@
 				<div class="bordaPrj">
 					<div id="map" class="map" style="height: 380px;">
 						<div id="toolbar">
-							<div id="pan" title="Arrastar mapa" class="btn btn-default active">
+							<div id="pan" title="Arrastar mapa"
+								class="btn btn-default active">
 								<i class="mdi mdi-arrow-all"></i>
 							</div>
-							<div id="drawPoint" title="Desenhar ponto" class="btn btn-default">
+							<div id="drawPoint" title="Desenhar ponto"
+								class="btn btn-default">
 								<i class="mdi mdi-map-marker"></i>
 							</div>
 							<div id="drawLine" title="Desenhar linha" class="btn btn-default">
 								<i class="mdi mdi-vector-polyline"></i>
 							</div>
-							<div id="drawPolygon" title="Desenhar polígono" class="btn btn-default">
+							<div id="drawPolygon" title="Desenhar polígono"
+								class="btn btn-default">
 								<i class="mdi mdi-vector-polygon"></i>
 							</div>
 							<div id="edit" title="Editar" class="btn btn-default">
@@ -49,10 +52,12 @@
 							<div id="erase" title="Excluir" class="btn btn-danger">
 								<i class="mdi mdi-delete"></i>
 							</div>
-							<div id="commit" title="Commit" class="btn btn-success">
+							<div id="commit" title="Commit" class="btn btn-success"
+								data-toggle="modal" data-target="#commit-modal">
 								<i class="mdi mdi-checkbox-marked-circle"></i>
 							</div>
-							<div id="push" title="Realizar push para servidor" class="btn btn-primary">
+							<div id="push" title="Realizar push para servidor"
+								class="btn btn-primary">
 								<i class="mdi mdi-cloud-upload"></i>
 							</div>
 						</div>
@@ -72,16 +77,23 @@
 						</thead>
 						<thead hidden="hidden" id="shapeThead">
 							<tr>
-								<th>Arquivo</th>
-								<th>Data de envio</th>
+								<th>Id</th>
+								<th>Mensagem</th>
+								<th>Autor</th>
+								<th>Data</th>
 							</tr>
 						</thead>
 						<tbody>
 					<?php }else {?>
+						
+						
+						
 						<thead id="shapeThead">
 							<tr>
-								<th>Arquivo</th>
-								<th>Data de envio</th>
+								<th>Id</th>
+								<th>Mensagem</th>
+								<th>Autor</th>
+								<th>Data</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -166,29 +178,30 @@
 	<div class="container">
 		<div class="row clearfix">
 			<div class="col-md-12 column">
-				<!-- Renomear -->
-				<div class="modal fade" id="modal-rename" role="dialog"
-					aria-labelledby="modal" aria-hidden="true">
+				<!-- Commit Modal -->
+				<div id="commit-modal" class="modal fade">
 					<div class="modal-dialog">
 						<div class="modal-content">
 							<div class="modal-header">
-								<!-- <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button> -->
-								<h4 class="modal-title" id="modal-rename-title"></h4>
+								<button type="button" class="close" data-dismiss="modal"
+									aria-hidden="true">x</button>
+								<h4 id="modal-label">Commitar alterações no repositório local</h4>
 							</div>
 							<div class="modal-body">
-								<strong>Novo nome:</strong> <input value="" id="newName"
-									type="text" class="form-control" autofocus /> <input
-									type="hidden" id='rename-id' value="" /> <span
-									id="modal-rename-error" class="errorMessage"></span>
-							</div>
-							<div class="modal-footer">
-								<button type="button" class="btn btn-default"
-									onclick="closeModal()">Fechar</button>
-								<a id="modal-rename-btn" href="" class="btn btn-primary">Renomear</a>
+								<form>
+									Mensagem de commit:
+									<textarea class="form-control" rows="3"></textarea>
+									<br>
+									<button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
+									<button type="submit" class="pull-right btn btn-success">Commit</button>
+								</form>
 							</div>
 						</div>
+						<!--modal-content-->
 					</div>
+					<!--modal-dialog-->
 				</div>
+				<!--modal-->
 				<!-- Remover -->
 				<div class="modal fade" id="modal-remove" role="dialog"
 					aria-labelledby="modal" aria-hidden="true">
