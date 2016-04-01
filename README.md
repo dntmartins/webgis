@@ -103,7 +103,28 @@ sudo apt-get install postgresql-client-9.x
 	Para:
 		host    all             all             127.0.0.1/32            trust
 2 - Reiniciar o serviço do Postgres
+
+#Adicionar Geogig ao PATH do Ubuntu
+1 - Execute no sheell sudo gedit ~/.bashrc
+2 - Adicione no final do arquivo (Supondo que o Geogig esteja no diretório "/opt/geogig/bin"):
+export PATH=$PATH:/opt/geogig/bin
+
+#Adicionar path do Geogig para o sudo PATH
+1 - Execute sudo visudo
+2 - Adicionar o PATH como abaixo:
+secure_path="......:/opt/geogig/bin"
+
 #Setar variável de ambiente para usuário do apache em ambiente Ubuntu 14.04
-Editar /etc/apache2/envvars
-Inserir no final do arquivo: export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/jvm/java-8-oracle/bin:/usr/lib/jvm/java-8-oracle/db/bin:/usr/lib/jvm/java-8-oracle/jre/bin:/opt/geogig/bin"
+1 - Execute no shell echo $PATH e copiar o caminho
+2 - Editar o arquivo /etc/apache2/envvars
+3 - Inserir no final do arquivo: 
+export PATH="<CÓPIA DO PATH>:/opt/geogig/bin"
+4 - Reiniciar serviço do apache:
+sudo service apache2 restart
+
+#Garantir privilégios ao usuário www-data
+1 - Execute no shell sudo visudo
+2 - No final do arquivo adicione:
+www-data ALL=NOPASSWD: ALL
+
 
