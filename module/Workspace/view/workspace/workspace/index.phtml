@@ -73,26 +73,15 @@
 				<br /> <span class="lead">Histórico de commits</span>
 				<div class="bordaPrj table-responsive table-overflow">
 					<table id="shapeTable" class="table table-striped table-bordered">
-					<?php if(empty($this->shapes)){?>
-						<thead id="noshapeThead">
+					<?php if(empty($this->commits)){?>
+						<thead>
 							<tr>
 								<th>Nenhum commit realizado</th>
 							</tr>
 						</thead>
-						<thead hidden="hidden" id="shapeThead">
-							<tr>
-								<th>Id</th>
-								<th>Mensagem</th>
-								<th>Autor</th>
-								<th>Data</th>
-							</tr>
-						</thead>
 						<tbody>
 					<?php }else {?>
-						
-						
-						
-						<thead id="shapeThead">
+						<thead>
 							<tr>
 								<th>Id</th>
 								<th>Mensagem</th>
@@ -102,12 +91,13 @@
 						</thead>
 						<tbody>
 							<?php
-						foreach ( $this->shapes as $shape ) {
-							$date = $shape->uploadDate;
+						foreach ( $this->commits as $commit ) {
 							?>
 							<tr>
-								<td><?php echo $shape->fileName ?></td>
-								<td><?php echo $date->format('d-m-Y H:i:s') ?></td>
+								<td><?php echo substr($commit->hash,0,7) ?></td>
+								<td><?php echo $commit->msg ?></td>
+								<td><?php echo $commit->use->name ?></td>
+								<td><?php echo $commit->date ?></td>
 							</tr>
 							<?php
 						}

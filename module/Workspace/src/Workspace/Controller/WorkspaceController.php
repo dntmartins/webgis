@@ -89,13 +89,17 @@ class WorkspaceController extends MainController {
 				$uploadSld = $acl->isAllowed ( $auth_user->rol->name, "Área de trabalho", "Upload de sld" );
 				$tableName = strtolower($auth_user->name . "_table");
 				$shapes = null;
+				$commits = null;
 				if($current_prj){
-					$shapes = $shapefileService->listByProjectId ( $current_prj->prjId );
+					$commitService = $serviceLocator->get ('Storage\Service\CommitService');
+					$commits = $commitService->getByUserAndPrj($this->session->user,$current_prj);
+					//$shapes = $shapefileService->listByProjectId ( $current_prj->prjId );
 				}
 				$slds = $sldService->listAll();
 				$fileSizeiBytes = $this->returnBytes(ini_get('post_max_size'));
 				$fileSizeString = ini_get('post_max_size');
 				return array (
+					'commits' => $commits,
 					'shapes' => $shapes,
 					'user' => $auth_user,
 					'user_session' => $this->session,
@@ -693,7 +697,7 @@ class WorkspaceController extends MainController {
 					return $this->showMessage('Por favor, insira uma mensagem para realizar o commit', 'workspace-error', '/workspace');
 				}
 				$serviceLocator = $this->getServiceLocator ();
-				$commitService = $serviceLocator->get ( 'Storage\Service\CommitService' );
+				$commitService = $serviceLocator->get ('Storage\Service\CommitService');
 				$config = $this->getConfiguration();
 				$dir = $this->getParentDir(__DIR__, 5);
 				$dir = $dir . "/geogig-repositories/" . $this->session->current_prj->prjId . "/" .strtolower($this->session->user->name);
@@ -713,6 +717,19 @@ class WorkspaceController extends MainController {
 							//$this->removeDir($dir);
 							return $this->showMessage('Ocorreu um erro ao realizar commit: ' . end($output), 'workspace-error', '/workspace');
 						}
+					}
+					$commitEntity = new Commit();
+					$commitEntity->hash =  substr($output["17"],1,40);
+					$commitEntity->msg = $msg;
+					$commitEntity->use = $this->session->user;
+					$commitEntity->name = $this->session->user->name; //mudar
+					$date = new \DateTime("now", new \DateTimeZone("America/Sao_Paulo"));
+					$commitEntity->date = date_format($date,"d/m/Y H:i:s");
+					$commitEntity->prj = $this->session->current_prj;
+					$commitOk = $commitService->addCommit($commitEntity);
+					if(!$commitOk){
+						shell_exec(escapeshellcmd("sudo geogig reset"));
+						return $this->showMessage('Ocorreu um erro ao realizar commit', 'workspace-error', '/workspace');
 					}
 				}else{
 					return $this->showMessage('Ocorreu um erro ao realizar commit', 'workspace-error', '/workspace');

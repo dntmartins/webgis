@@ -38,13 +38,6 @@ class Commit
     /**
      * @var string
      *
-     * @ORM\Column(name="name", type="string", length=255, nullable=false)
-     */
-    private $name;
-
-    /**
-     * @var string
-     *
      * @ORM\Column(name="date", type="string", length=255, nullable=false)
      */
     private $date;
