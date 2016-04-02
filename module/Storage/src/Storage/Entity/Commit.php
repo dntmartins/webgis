@@ -1,6 +1,6 @@
 <?php
 
-namespace Project\Entity;
+namespace Storage\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 
@@ -50,14 +50,24 @@ class Commit
     private $date;
 
     /**
-     * @var \Project\Entity\User
+     * @var \Storage\Entity\User
      *
-     * @ORM\ManyToOne(targetEntity="Project\Entity\User")
+     * @ORM\ManyToOne(targetEntity="Storage\Entity\User")
      * @ORM\JoinColumns({
      *   @ORM\JoinColumn(name="use_id", referencedColumnName="use_id")
      * })
      */
     private $use;
+    
+    /**
+     * @var \Storage\Entity\Project
+     *
+     * @ORM\ManyToOne(targetEntity="Storage\Entity\Project")
+     * @ORM\JoinColumns({
+     *   @ORM\JoinColumn(name="prj_id", referencedColumnName="prj_id")
+     * })
+     */
+    private $prj;
     
     public function __set($name, $value) {
     	$this->$name = $value;

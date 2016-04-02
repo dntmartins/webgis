@@ -11,6 +11,7 @@ namespace Workspace\Controller;
 use Zend\Session\Container;
 use Storage\Entity\Shapefile;
 use Storage\Entity\Layer;
+use Storage\Entity\Commit;
 use Main\Controller\MainController;
 use Main\Helper\LogHelper;
 
@@ -687,35 +688,42 @@ class WorkspaceController extends MainController {
 	
 	public function commitAction(){
 		try {
-			$config = $this->getConfiguration();
-			$response = $this->getResponse();
-			$dir = $this->getParentDir(__DIR__, 5);
-			$dir = $dir . "/geogig-repositories/" . $this->session->current_prj->prjId . "/" .strtolower($this->session->user->name);
-			$database = strtolower($this->session->current_prj->projectName);
-			$tableName = strtolower($this->session->user->name . '_table');
-			if(chdir($dir)){
-				$msg = "ola";
-				$commands = array(
-						"sudo geogig pg import --database " . $database . " --port 5432 --user " . $config["datasource"]["login"] . " --password " . $config["datasource"]["password"] . " --table " . $tableName,
-						"sudo geogig add",
-						'sudo geogig commit -m "' .$msg .'"',
-				);
-				foreach($commands as $command){
-					exec(escapeshellcmd($command), $output, $return_var);
-					LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$output."- Linha: " . __LINE__);
-					if($return_var !== 0){
-						$response->setContent(\Zend\Json\Json::encode(array('status' => false,'msg' => "Ocorreu um erro ao realizar commit")));
-						$this->removeDir($dir);
-						return $response;
-					}
+			if ($this->verifyUserSession ()) {
+				$formData = $this->getFormData ();
+				if(!$formData["commitMsg"]){
+					return $this->showMessage('Por favor, insira uma mensagem para realizar o commit', 'workspace-error', '/workspace');
 				}
+				$serviceLocator = $this->getServiceLocator ();
+				$commitService = $serviceLocator->get ( 'Storage\Service\CommitService' );
+				$config = $this->getConfiguration();
+				$dir = $this->getParentDir(__DIR__, 5);
+				$dir = $dir . "/geogig-repositories/" . $this->session->current_prj->prjId . "/" .strtolower($this->session->user->name);
+				$database = strtolower($this->session->current_prj->projectName);
+				$tableName = strtolower($this->session->user->name . '_table');
+				if(chdir($dir)){
+					$msg = $formData["commitMsg"];
+					$commands = array(
+							"sudo geogig pg import --database " . $database . " --port 5432 --user " . $config["datasource"]["login"] . " --password " . $config["datasource"]["password"] . " --table " . $tableName,
+							"sudo geogig add",
+							'sudo geogig commit -m "' .$msg .'"',
+					);
+					foreach($commands as $command){
+						exec(escapeshellcmd($command), $output, $return_var);
+						LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$output."- Linha: " . __LINE__);
+						if($return_var !== 0){
+							//$this->removeDir($dir);
+							return $this->showMessage('Ocorreu um erro ao realizar commit: ' . end($output), 'workspace-error', '/workspace');
+						}
+					}
+				}else{
+					return $this->showMessage('Ocorreu um erro ao realizar commit', 'workspace-error', '/workspace');
+				}
+				return $this->showMessage('Commit realizado com sucesso: ' . $output["17"], 'workspace-success', '/workspace');
 			}else{
-				$response->setContent(\Zend\Json\Json::encode(array('status' => false,'msg' => "Ocorreu um erro ao realizar commit")));
-				return $response;
+				return $this->showMessage('Sua sessão expirou, favor relogar', 'workspace-error', '/workspace');
 			}
-			$response->setContent(\Zend\Json\Json::encode(array('status' => true,'msg' => "Commit realizado com sucesso!")));
-			return $response;
 		} catch (\Exception $e) {
+			return $this->showMessage('Ocorreu um erro ao realizar commit', 'workspace-error', '/workspace');
 		}
 	}
 }
