@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Commit
  *
- * @ORM\Table(name="commit", indexes={@ORM\Index(name="commit_user_fk", columns={"use_id"})})
+ * @ORM\Table(name="commit", indexes={@ORM\Index(name="commit_user_fk", columns={"use_id"}), @ORM\Index(name="commit_project_fk", columns={"prj_id"})})
  * @ORM\Entity
  */
 class Commit
@@ -58,7 +58,7 @@ class Commit
      * })
      */
     private $use;
-    
+
     /**
      * @var \Storage\Entity\Project
      *
@@ -68,11 +68,10 @@ class Commit
      * })
      */
     private $prj;
-    
+
     public function __set($name, $value) {
     	$this->$name = $value;
     }
-    
     public function __get($name) {
     	return $this->$name;
     }

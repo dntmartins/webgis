@@ -2,9 +2,6 @@
 namespace Storage\Service;
 
 use Doctrine\ORM\EntityManager;
-use Doctrine\ORM\Query\ResultSetMapping;
-use Doctrine\ORM\Query;
-use Main\Helper\LogHelper;
 
 class CommitService extends AbstractService {
 
@@ -13,7 +10,7 @@ class CommitService extends AbstractService {
         $this->entity = "Storage\Entity\Commit";
     }
     
-    public function addLayer($commit) {
+       /*public function addLayer($commit) {
 	    try {
     		$sql="INSERT INTO commit (hash,use_id, prj_id, msg, name, date) values(".
       		$commit->hash . "," .
@@ -38,5 +35,6 @@ class CommitService extends AbstractService {
     		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);
     		return false;
     	}
-    }
+    }*/
+  
 }

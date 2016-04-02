@@ -2,13 +2,11 @@
 namespace Storage\Service;
 
 use Doctrine\ORM\EntityManager;
-use Storage\Entity\Configurator;
 use Doctrine\ORM\Query\ResultSetMapping;
 use Doctrine\ORM\Query;
 use Main\Helper\LogHelper;
 
 class LayerService extends AbstractService {
-
     public function __construct(EntityManager $em) {
         parent::__construct($em);
         $this->entity = "Storage\Entity\Layer";

@@ -41,7 +41,6 @@ class WorkspaceController extends MainController {
 				$shapefileService = $serviceLocator->get ( 'Storage\Service\ShapefileService' );
 				$layerService = $serviceLocator->get ( 'Storage\Service\LayerService' );
 				$sldService = $serviceLocator->get ( 'Storage\Service\SldService' );
-				$layerService = $serviceLocator->get ( 'Storage\Service\LayerService' );
 				$current_prj = $this->session->current_prj;
 				$formData = $this->getFormData();
 				$projects = $accessService->getPrjByUser ($this->session->user);
