@@ -181,7 +181,7 @@
 							<div class="modal-header">
 								<button type="button" class="close" data-dismiss="modal"
 									aria-hidden="true">x</button>
-								<h4 id="modal-label">Commitar alterações no repositório local</h4>
+								<h4 class="modal-title">Commitar alterações no repositório local</h4>
 							</div>
 							<div class="modal-body">
 								<form method="post" action="/workspace/commit">
@@ -189,7 +189,8 @@
 									<textarea class="form-control" rows="3" name="commitMsg"></textarea>
 									<br>
 									<button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
-									<button type="submit" class="pull-right btn btn-success">Commit</button>
+									<button id="commit-btn" type="submit" class="pull-right btn btn-success" onclick="showCommitAjaxGif()">Commit</button>
+									<img id="commit-ajax-gif" class="pull-right" src="/img/ajax-loader.gif" hidden="hidden">
 								</form>
 							</div>
 						</div>
@@ -198,23 +199,23 @@
 					<!--modal-dialog-->
 				</div>
 				<!--modal-->
-				<!-- Remover -->
-				<div class="modal fade" id="modal-remove" role="dialog"
+				<!-- Insert Point -->
+				<div class="modal fade" id="modal-insert-point" role="dialog"
 					aria-labelledby="modal" aria-hidden="true">
 					<div class="modal-dialog">
 						<div class="modal-content">
 							<div class="modal-header">
 								<!-- <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button> -->
-								<h4 class="modal-title" id="modal-remove-title"></h4>
+								<h4 class="modal-title" id="modal-insert-point-title">Descrição do ponto</h4>
 							</div>
 							<div class="modal-body">
-								<span id="modal-remove-message"></span> <input type="hidden"
-									id='remove-id' value="" />
+								<span id="modal-remove-message">Descrição: </span><input type="text"
+									id='desc-point' class="form-control input-md" value="" />
 							</div>
 							<div class="modal-footer">
 								<button type="button" class="btn btn-default"
 									data-dismiss="modal">Fechar</button>
-								<a id="modal-remove-btn" href="" class="btn btn-primary">Remover</a>
+								<a id="modal-remove-btn" href="#" class="btn btn-primary">Enviar</a>
 							</div>
 						</div>
 					</div>
@@ -245,9 +246,7 @@
 	</div>
 </div>
 <script type="text/javascript">
-var basePath = '<?php echo $this->basePath(); ?>';
-var fileSizeInBytes = '<?php echo $this->fileSizeInBytes; ?>';
-var fileSizeString = '<?php echo $this->fileSizeString; ?>';
+var basePath = '<?php echo $this->basePath; ?>';
 var projectName = '<?php echo $this->current_prj->projectName; ?>';
 var tableName = '<?php echo $this->tableName; ?>';
 </script>

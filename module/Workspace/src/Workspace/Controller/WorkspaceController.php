@@ -769,9 +769,11 @@ class WorkspaceController extends MainController {
 							" " .
 							$tableName,
 					);
+					
 					foreach($commands as $command){
 						exec(escapeshellcmd($command), $output, $return_var);
 						if($return_var !== 0){
+							shell_exec(escapeshellcmd("sudo geogig revert --abort"));
 							return $this->showMessage('Ocorreu um erro ao realizar o revert: ' . end($output), 'workspace-error', '/workspace');
 						}
 					}

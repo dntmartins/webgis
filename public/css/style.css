@@ -231,3 +231,7 @@ a.glyphicon {
     overflow: auto;
     padding-bottom: 15px;
 }
+
+#commit-ajax-gif {
+	float:right;
+}

@@ -219,6 +219,7 @@ $(document).ready(function() {
 		$(this).addClass('active');
 		addInteraction("Point");
 		draw.on('drawend', function(e) {
+			  $("#modal-insert-point").modal();
 			  //var feature = transformFeaturePrj(e.feature);
 			  transactWFS('insert',e.feature);
 			  });

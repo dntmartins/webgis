@@ -431,3 +431,7 @@ var showValidationRules = function() {
 	});
 	$("#modal-info").modal("show");
 }
+
+var showCommitAjaxGif = function(){
+	$("#commit-ajax-gif").show();
+}
