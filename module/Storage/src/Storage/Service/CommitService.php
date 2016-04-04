@@ -37,4 +37,19 @@ class CommitService extends AbstractService {
 		}
 	}
 	
+	public function removeByUserAndPrj($user, $prj){
+		$sql="DELETE FROM commit WHERE use_id = " . $user->useId. " and prj_id = ".$prj->prjId;
+		try {
+			$conn=$this->em->getConnection();
+			$conn->exec($sql);
+			return true;
+		}catch (\Doctrine\DBAL\DBALException $dbalExc){
+			LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$dbalExc->getMessage()." Linha: " . __LINE__);
+			return false;
+		}catch (\Exception $e){
+			LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);
+			return false;
+		}
+	}
+	
 }

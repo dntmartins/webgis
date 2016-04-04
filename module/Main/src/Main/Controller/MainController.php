@@ -509,11 +509,10 @@ class MainController extends AbstractActionController
     	$serviceLocator = $this->getServiceLocator();
     	$datasourceService = $serviceLocator->get ( 'Storage\Service\DataSourceService' );
     	$config = $this->getConfiguration();
-    	$tableName = strtolower($tableName);
     	if ($tableName != null){
     		$db =  pg_connect('host='.$config["datasource"]["host"].' dbname='.strtolower($dbName).' user='.$config["datasource"]["login"].' password='.$config["datasource"]["password"].' connect_timeout=5');
     		if ($db != null){
-    			$sql = "DROP TABLE public.". strtolower($tableName);
+    			$sql = "DROP TABLE public.". $tableName;
     			$query = pg_query($db, $sql);
     			pg_close($db);
     			if ($query!==false){

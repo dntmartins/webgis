@@ -87,7 +87,7 @@ class WorkspaceController extends MainController {
 				$acl = $this->getServiceLocator ()->get ( 'Admin\Permissions\Acl' );
 				$uploadShape = $acl->isAllowed ( $auth_user->rol->name, "Área de trabalho", "Upload de shapefile" );
 				$uploadSld = $acl->isAllowed ( $auth_user->rol->name, "Área de trabalho", "Upload de sld" );
-				$tableName = strtolower($auth_user->name . "_table");
+				$tableName = "table_" . $auth_user->useId;
 				$shapes = null;
 				$commits = null;
 				if($current_prj){
@@ -700,9 +700,9 @@ class WorkspaceController extends MainController {
 				$commitService = $serviceLocator->get ('Storage\Service\CommitService');
 				$config = $this->getConfiguration();
 				$dir = $this->getParentDir(__DIR__, 5);
-				$dir = $dir . "/geogig-repositories/" . $this->session->current_prj->prjId . "/" .strtolower($this->session->user->name);
+				$dir = $dir . "/geogig-repositories/" . $this->session->current_prj->prjId . "/" .$this->session->user->useId;
 				$database = strtolower($this->session->current_prj->projectName);
-				$tableName = strtolower($this->session->user->name . '_table');
+				$tableName = 'table_' . $this->session->user->useId;
 				if(chdir($dir)){
 					$msg = $formData["commitMsg"];
 					$commands = array(
@@ -742,4 +742,49 @@ class WorkspaceController extends MainController {
 			return $this->showMessage('Ocorreu um erro ao realizar commit', 'workspace-error', '/workspace');
 		}
 	}
+	
+	
+	public function revertCommitAction(){
+		try {
+			if ($this->verifyUserSession ()) {
+				$formData = $this->getFormData ();
+				if(!$formData["commitId"]){
+					return $this->showMessage('Ocorreu um erro ao realizar o revert', 'workspace-error', '/workspace');
+				}
+				$config = $this->getConfiguration();
+				$dir = $this->getParentDir(__DIR__, 5);
+				$dir = $dir . "/geogig-repositories/" . $this->session->current_prj->prjId . "/" . $this->session->user->useId;
+				$database = strtolower($this->session->current_prj->projectName);
+				$tableName = "table_" . $this->session->user->useId;
+				if(chdir($dir)){
+					$msg = $formData["commitMsg"];
+					$commands = array(
+							"sudo geogig revert " . $formData["commitId"],
+							"sudo geogig pg export --database " .
+							$database . " --user " .
+							$config["datasource"]["login"] .
+							" --password " . 
+							$config["datasource"]["password"] .
+							" -o " . $tableName . 
+							" " .
+							$tableName,
+					);
+					foreach($commands as $command){
+						exec(escapeshellcmd($command), $output, $return_var);
+						if($return_var !== 0){
+							return $this->showMessage('Ocorreu um erro ao realizar o revert: ' . end($output), 'workspace-error', '/workspace');
+						}
+					}
+				}else{
+					return $this->showMessage('Ocorreu um erro ao realizar o revert', 'workspace-error', '/workspace');
+				}
+				return $this->showMessage('Revert realizado com sucesso', 'workspace-success', '/workspace');
+			}else{
+				return $this->showMessage('Sua sessão expirou, favor relogar', 'workspace-error', '/workspace');
+			}
+		} catch (\Exception $e) {
+			return $this->showMessage('Ocorreu um erro ao realizar o revert', 'workspace-error', '/workspace');
+		}
+	}
+	
 }

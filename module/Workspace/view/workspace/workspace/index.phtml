@@ -87,6 +87,7 @@
 								<th>Mensagem</th>
 								<th>Autor</th>
 								<th>Data</th>
+								<th>Revert</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -94,10 +95,11 @@
 						foreach ( $this->commits as $commit ) {
 							?>
 							<tr>
-								<td><?php echo substr($commit->hash,0,7) ?></td>
+								<td><?php echo substr($commit->hash,0,8) ?></td>
 								<td><?php echo $commit->msg ?></td>
 								<td><?php echo $commit->use->name ?></td>
 								<td><?php echo $commit->date ?></td>
+								<td><form method="post" action="/workspace/revertCommit"><input type="hidden" name="commitId" value="<?php echo $commit->hash;?>"><input type="submit" value="Revert" /></form></td>
 							</tr>
 							<?php
 						}

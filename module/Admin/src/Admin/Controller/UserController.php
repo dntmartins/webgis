@@ -190,24 +190,32 @@ class UserController extends MainController {
 							if($user && $prjs) { // Verifica se algum usuário foi selecionado no combo e se pelo menos um projeto foi marcado
 								$userPrjs = $accessService->getPrjByUser($user);
 								$userService->begin();
-								if(!$userPrjs){
+								/*if(!$userPrjs){
 									$userService->rollback();
 									return $this->showMessage('Não foi possível associar o usuário aos subprojetos', 'admin-error', $url);
-								}
+								}*/
 								if (! $accessService->removeAllByUser ( $user )) { //Remove a associação do usuário aos projetos para depois inserir novamente
 									$userService->rollback();
 									return $this->showMessage('Não foi possível associar o usuário aos subprojetos', 'admin-error', $url);
 								}
 								
-								foreach($userPrjs as $prjOld){
-									foreach ($prjs as $prjSelected) {
-										if(!($prjOld->prjId == $prjSelected)){
-											$tableName = strtolower($user->name . '_table');
-											$this->deleteTable($tableName, $prjOld->projectName);
-											$dir = $this->getParentDir(__DIR__, 5);
-											$dir = $dir . "/geogig-repositories/" . $prjOld->prjId . "/" . strtolower($user->name);;
-											$this->removeDir($dir);
+								$list = array();
+								foreach($userPrjs as $prj){
+									array_push($list, $prj->prjId);
+								}
+								
+								foreach ($list as $prjSelected) {
+									if(array_search($prjSelected,$prjs)===false){
+										$tableName = 'table_' . $user->useId;
+										$project = $projectService->getById ($prjSelected);
+										$commitService = $serviceLocator->get ('Storage\Service\CommitService');
+										$isTrue = $commitService->removeByUserAndPrj($this->session->user, $project);
+										$dir = $this->getParentDir(__DIR__, 5);
+										$dir = $dir . "/geogig-repositories/" . $project->prjId . "/" . $user->useId;;
+										if(!$isTrue && !$this->deleteTable($tableName, $project->projectName && !$this->removeDir($dir))){
+											return $this->showMessage('Não foi possível associar o usuário aos subprojetos', 'admin-error', $url);
 										}
+										$commitService->removeByUserAndPrj($user, $project);
 									}
 								}
 								
@@ -257,7 +265,7 @@ class UserController extends MainController {
 	}
 	
 	private function createPostGISTable($project, $user){
-		$tableName = strtolower($user->name . '_table');
+		$tableName = 'table_' . $user->useId;
 		$serviceLocator = $this->getServiceLocator();
 		$datasourceService = $serviceLocator->get ( 'Storage\Service\DataSourceService' );
 		$config = $this->getConfiguration();
@@ -337,7 +345,7 @@ class UserController extends MainController {
 				return false;
 			}
 		}
-		$dir = $dir . "/" . strtolower($user->name);
+		$dir = $dir . "/" . $user->useId;
 		if(!is_dir($dir)){
 			if(mkdir ( $dir, 0777, true ) === false){
 				return false;
@@ -364,7 +372,6 @@ class UserController extends MainController {
 		}
 		return true;
 	}
-	
 	public function disableAction() {
 		try {
 			$response = $this->getResponse();
@@ -410,7 +417,6 @@ class UserController extends MainController {
 			return $response;
 		}
 	}
-	
 	public function enableAction() {
 		try {
 			$response = $this->getResponse();
@@ -458,7 +464,6 @@ class UserController extends MainController {
 			return $response;
 		}
 	}
-	
 	public function checkIfEmailExistsAction() {
 		try {
 			$response = $this->getResponse();
