@@ -11,39 +11,6 @@ function abstractCallAjax(url,successFunc,method, data, beforeSendFunction){
 	});
 }
 
-var showAjaxSuccessMessage = function (msg, appendMsg){
-    if(appendMsg)
-        $("#ajax_workspace_success_msg").append( "<div>" + msg + "</div>" );
-    else
-        $("#ajax_workspace_success_msg").html(msg);
-    $("#ajax_workspace_success").fadeIn(); 
-    $("#ajax_workspace_error").hide();
-    setTimeout( function(){$("#ajax_workspace_success").fadeOut()}, 15000);
-    $(".flash-messages").remove();
-};
-
-var showAjaxErrorMessage = function (msg, appendMsg){
-    if(appendMsg)
-    	$("#ajax_workspace_error_msg").append( "<div>" + msg + "</div>" );
-    else
-        $("#ajax_workspace_error_msg").html(msg);
-    $("#ajax_workspace_error").fadeIn();
-    $("#ajax_workspace_success").hide();
-    setTimeout( function(){$("#ajax_workspace_error").fadeOut()}, 15000);
-    $(".flash-messages").remove();
-};
-
-var showAjaxWarningMessage = function (msg, appendMsg){
-    if(appendMsg)
-        $("#ajax_workspace_warning_msg").append( "<div>" + msg + "</div>" );
-    else
-        $("#ajax_workspace_warning_msg").html(msg);
-    $("#ajax_workspace_warning").fadeIn(); 
-    $("#ajax_workspace_error").hide();
-    $("#ajax_workspace_sucess").hide();
-    $(".flash-messages").remove();
-};
-
 var getExtension = function(doc_id) {
 	return $('#document_file_extension_' + doc_id).val();
 };
@@ -434,4 +401,8 @@ var showValidationRules = function() {
 
 var showCommitAjaxGif = function(){
 	$("#commit-ajax-gif").show();
+}
+
+var showRevertAjaxGif = function($id){
+	$("#revert-ajax-gif-"+$id).show();
 }

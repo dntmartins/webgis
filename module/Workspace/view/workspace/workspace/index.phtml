@@ -46,6 +46,10 @@
 								class="btn btn-default">
 								<i class="mdi mdi-vector-polygon"></i>
 							</div>
+							<div id="pointDetail" title="Ver detalhes"
+								class="btn btn-default">
+								<i class="mdi mdi-information"></i>
+							</div>
 							<div id="edit" title="Editar" class="btn btn-default">
 								<i class="mdi mdi-tooltip-edit"></i>
 							</div>
@@ -91,17 +95,25 @@
 							</tr>
 						</thead>
 						<tbody>
-							<?php
+						<?php
+						$count = 0;
 						foreach ( $this->commits as $commit ) {
 							?>
 							<tr>
-								<td><?php echo substr($commit->hash,0,8) ?></td>
-								<td><?php echo $commit->msg ?></td>
-								<td><?php echo $commit->use->name ?></td>
-								<td><?php echo $commit->date ?></td>
-								<td><form method="post" action="/workspace/revertCommit"><input type="hidden" name="commitId" value="<?php echo $commit->hash;?>"><input type="submit" value="Revert" /></form></td>
+								<td><?php echo substr($commit->hash,0,8); ?></td>
+								<td><?php echo $commit->msg; ?></td>
+								<td><?php echo $commit->use->name; ?></td>
+								<td><?php echo $commit->date; ?></td>
+								<td>
+								<form method="post" action="/workspace/revertCommit">
+									<input type="hidden" name="commitId" value="<?php echo $commit->hash;?>" />
+									<img style="float:left" id="<?php echo "revert-ajax-gif-" . $count; ?>" class="pull-right" src="/img/ajax-loader.gif" hidden="hidden">
+									<input type="submit" value="Revert" onclick="<?php echo "showRevertAjaxGif(" . $count . ")"; ?>"/>
+								</form>
+								</td>
 							</tr>
-							<?php
+						<?php
+						$count++;
 						}
 						?>
 						</tbody>
@@ -149,28 +161,6 @@
 	) );
 	?>
 
-	<div id="ajax_workspace_error"
-		onclick="$('#ajax_workspace_error').hide()"
-		class="alert alert-dismissable alert-danger alert-messages"
-		hidden="hidden">
-		<button class="close" type="button">×</button>
-		<div id="ajax_workspace_error_msg"></div>
-	</div>
-	<div id="ajax_workspace_success"
-		class="alert alert-dismissable alert-success alert-messages"
-		hidden="hidden">
-		<button class="close" onclick="$('#ajax_workspace_success').hide()"
-			type="button">×</button>
-		<div id="ajax_workspace_success_msg"></div>
-	</div>
-	<div id="ajax_workspace_warning"
-		class="alert alert-dismissable alert-warning alert-messages"
-		hidden="hidden">
-		<button class="close" onclick="$('#ajax_workspace_warning').hide()"
-			type="button">×</button>
-		<div id="ajax_workspace_warning_msg"></div>
-	</div>
-
 	<div class="container">
 		<div class="row clearfix">
 			<div class="col-md-12 column">
@@ -209,30 +199,30 @@
 								<h4 class="modal-title" id="modal-insert-point-title">Descrição do ponto</h4>
 							</div>
 							<div class="modal-body">
-								<span id="modal-remove-message">Descrição: </span><input type="text"
+								<span>Descrição: </span><input type="text"
 									id='desc-point' class="form-control input-md" value="" />
 							</div>
 							<div class="modal-footer">
-								<button type="button" class="btn btn-default"
+								<button id='modal-insert-close' type="button" class="btn btn-default"
 									data-dismiss="modal">Fechar</button>
-								<a id="modal-remove-btn" href="#" class="btn btn-primary">Enviar</a>
+								<button id="modal-insert-submit" class="btn btn-primary">Enviar</button>
 							</div>
 						</div>
 					</div>
 				</div>
 				<!-- Passos validação shape -->
-				<div class="modal fade" id="modal-info" role="dialog"
+				<div class="modal fade" id="modal-description" role="dialog"
 					aria-labelledby="modal" aria-hidden="true">
 					<div class="modal-dialog">
 						<div class="modal-content">
 							<div class="modal-header">
 								<button type="button" class="close" data-dismiss="modal"
 									aria-hidden="true">×</button>
-								<h4 class="modal-title">Regras da validação de shapefiles</h4>
+								<h4 class="modal-title">Descrição do ponto</h4>
 							</div>
 							<div class="modal-body">
-								<label>A validação de shapefiles segue os passos abaixo:</label>
-								<div id="rules"></div>
+								<label>Descrição:</label>
+								<div id="modal-description-point"></div>
 							</div>
 							<div class="modal-footer">
 								<button type="button" class="btn btn-default"

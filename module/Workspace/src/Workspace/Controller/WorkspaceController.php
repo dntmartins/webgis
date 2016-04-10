@@ -693,7 +693,8 @@ class WorkspaceController extends MainController {
 		try {
 			if ($this->verifyUserSession ()) {
 				$formData = $this->getFormData ();
-				if(!$formData["commitMsg"]){
+				$msg = trim($formData["commitMsg"]);
+				if(strlen($msg) === 0){
 					return $this->showMessage('Por favor, insira uma mensagem para realizar o commit', 'workspace-error', '/workspace');
 				}
 				$serviceLocator = $this->getServiceLocator ();
@@ -704,7 +705,7 @@ class WorkspaceController extends MainController {
 				$database = strtolower($this->session->current_prj->projectName);
 				$tableName = 'table_' . $this->session->user->useId;
 				if(chdir($dir)){
-					$msg = $formData["commitMsg"];
+					
 					$commands = array(
 							"sudo geogig pg import --database " . $database . " --port 5432 --user " . $config["datasource"]["login"] . " --password " . $config["datasource"]["password"] . " --table " . $tableName,
 							"sudo geogig add",

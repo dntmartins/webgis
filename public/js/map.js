@@ -34,7 +34,7 @@ $(document).ready(function() {
 				//projection : 'EPSG:3857',
 				features : features,
 				url : function(extent) {
-					return 'http://localhost:8080/geoserver/wfs?service=WFS&'
+					return 'http://webgis/geoserver/wfs?service=WFS&'
 							+ 'version=1.1.0&request=GetFeature&typename=' + projectName + ':' +tableName+'&'
 							+ 'outputFormat=application/json&srsname=EPSG:3857&'
 							+ 'bbox=' + extent.join(',') + ',EPSG:3857';
@@ -79,18 +79,16 @@ $(document).ready(function() {
 					&& ol.events.condition.singleClick(event);
 		}
 	});
-	modify.on('modifyend', function (e) {
-		console.log("feature id is",e.features.getArray()[0].getId());
-		//e.features.forEach(function (feature) {
-			transactWFS('update', e.features.getArray()[0]);
-	    //});
-		
+	modify.on('modifyend', function(e) {
+		//realizar o clear
+		transactWFS('update', e.features.getArray()[0]);
 	});
 	
 	var draw; // global so we can remove it later
 	var eraseHover = new ol.interaction.Select({
 		condition: ol.events.condition.pointerMove
 		});
+	
 	var erase = new ol.interaction.Select({
 	    condition: ol.events.condition.click
 	    });
@@ -102,6 +100,26 @@ $(document).ready(function() {
 	    collection.clear();
 	});
 	
+	erase.getFeatures().on('change:length', function(e) {
+		transactWFS('delete',e.target.item(0));
+    });
+	
+	var seeDetailHover = new ol.interaction.Select({
+		condition: ol.events.condition.pointerMove
+		});
+	
+	var seeDetail = new ol.interaction.Select({
+	    condition: ol.events.condition.click
+	    });
+	
+	seeDetail.on('select', function(e) {
+	    var collection = e.target.getFeatures(),
+	        feature = collection.item(0);
+	    $("#modal-description").modal("show")
+	    $("#modal-description-point").html(feature.get('description'));
+	    collection.clear();
+	});
+	
 	function addInteraction(type) {
 		draw = new ol.interaction.Draw({
 			features : features,
@@ -109,6 +127,7 @@ $(document).ready(function() {
 		});
 		map.addInteraction(draw);
 	}
+	
 	//Refatorar para um array com eventos
 	function clearCustomInteractions() {
 		$("#toolbar").find("div").removeClass('active');
@@ -116,6 +135,8 @@ $(document).ready(function() {
 		map.removeInteraction(modify);
 		map.removeInteraction(erase);
 		map.removeInteraction(eraseHover);
+		map.removeInteraction(seeDetail);
+		map.removeInteraction(seeDetailHover);
 	}
 	
 	function removeLowerCaseGeometryNodeForInsert(node) {
@@ -152,36 +173,50 @@ $(document).ready(function() {
 	}
 	
 	//wfs-t
-	var transactWFS = function(p,f) {
+	var transactWFS = function(p,feature,desc) {
 		var formatWFS = new ol.format.WFS();
 		var formatGML = new ol.format.GML({
 			featureNS: 'http://'+projectName,
 			featureType: tableName,
 			srsName: 'EPSG:3857'
 			});
+		var error;
 		switch(p) {
 		case 'insert':
-			f.set('geom', f.getGeometry());
-			node = formatWFS.writeTransaction([f],null,null,formatGML);
+			feature.set('geom', feature.getGeometry());
+			feature.set('description', desc);
+			node = formatWFS.writeTransaction([feature],null,null,formatGML);
 			removeLowerCaseGeometryNodeForInsert(node);
+			error = function(){
+				showAjaxErrorMessage("Ocorreu um erro ao inserir um ponto");
+				vectorSource.removeFeature(feature);
+			};
 			break;
 		case 'update':
-			f.set('geom', f.getGeometry());
-			node = formatWFS.writeTransaction(null,[f],null,formatGML);
+			feature.set('geom', feature.getGeometry());
+			feature.set('description', desc);
+			node = formatWFS.writeTransaction(null,[feature],null,formatGML);
 			removeNodeForWfsUpdate(node, "geometry");
+			error = function(){
+				showAjaxErrorMessage("Ocorreu um erro ao realizar mudança do ponto");
+			};
 			break;
 		case 'delete':
-			node = formatWFS.writeTransaction(null,null,[f],formatGML);
+			node = formatWFS.writeTransaction(null,null,[feature],formatGML);
+			error = function(){
+				showAjaxErrorMessage("Ocorreu um erro ao deletar o ponto");
+			};
 			break;
 		}
 		s = new XMLSerializer();
 		str = s.serializeToString(node);
-		$.ajax('http://webgis/geoserver/wfs',{
+		$.ajax('http://webgis/geoserver/wfs', {
 			type: 'POST',
 			dataType: 'xml',
 			processData: false,
 			contentType: 'text/xml',
-			data: str
+			data: str,
+			error: error
 			}).done();
 	}
 	//fim wfs-t
@@ -208,9 +243,6 @@ $(document).ready(function() {
 		$(this).addClass('active');
 		map.addInteraction(eraseHover);
 		map.addInteraction(erase);
-		erase.getFeatures().on('change:length', function(e) {
-			transactWFS('delete',e.target.item(0));
-	    });
 		return false;
 	});
 	
@@ -219,10 +251,18 @@ $(document).ready(function() {
 		$(this).addClass('active');
 		addInteraction("Point");
 		draw.on('drawend', function(e) {
-			  $("#modal-insert-point").modal();
-			  //var feature = transformFeaturePrj(e.feature);
-			  transactWFS('insert',e.feature);
-			  });
+		//var feature = transformFeaturePrj(e.feature);
+		  $("#modal-insert-point").modal('show');
+		  document.getElementById("modal-insert-submit").onclick = function(){
+			  $("#modal-insert-point").modal('hide');
+			  var desc = $("#desc-point").val();
+			  $("#desc-point").val("");
+			  transactWFS('insert', e.feature, desc);
+		  };
+		  document.getElementById("modal-insert-close").onclick = function(){
+			  vectorSource.removeFeature(e.feature);
+		  };
+		});
 		return false;
 	});
 	
@@ -243,8 +283,16 @@ $(document).ready(function() {
 		addInteraction("MultiPolygon");
 		draw.on('drawend', function(e) {
 			  //var feature = transformFeaturePrj(e.feature);
-			  transactWFS('insert',e.feature);
+			  transactWFS('insert', e.feature);
 			  });
+		return false;
+	});
+	
+	$('#pointDetail').click(function() {
+		clearCustomInteractions();
+		$(this).addClass('active');
+		map.addInteraction(seeDetail);
+		map.addInteraction(seeDetailHover);
 		return false;
 	});
 	

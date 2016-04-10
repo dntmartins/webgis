@@ -209,13 +209,14 @@ class UserController extends MainController {
 										$tableName = 'table_' . $user->useId;
 										$project = $projectService->getById ($prjSelected);
 										$commitService = $serviceLocator->get ('Storage\Service\CommitService');
-										$isTrue = $commitService->removeByUserAndPrj($this->session->user, $project);
 										$dir = $this->getParentDir(__DIR__, 5);
 										$dir = $dir . "/geogig-repositories/" . $project->prjId . "/" . $user->useId;;
-										if(!$isTrue && !$this->deleteTable($tableName, $project->projectName && !$this->removeDir($dir))){
+										$deleteTable = $this->deleteTable($tableName, $project->projectName);
+										$removeDir = $this->removeDir($dir);
+										$removeCommit = $commitService->removeByUserAndPrj($user, $project);
+										if(!$removeCommit && !$removeCommit && !$removeDir){
 											return $this->showMessage('Não foi possível associar o usuário aos subprojetos', 'admin-error', $url);
 										}
-										$commitService->removeByUserAndPrj($user, $project);
 									}
 								}
 								
@@ -276,7 +277,7 @@ class UserController extends MainController {
 			if($tableExists !== false){
 				return true;
 			}
-			$createTableSQL = 'CREATE TABLE public.' . $tableName . ' (id serial PRIMARY KEY)';
+			$createTableSQL = 'CREATE TABLE public.' . $tableName . ' (id serial PRIMARY KEY, description VARCHAR(40))';
 			$query = pg_query($dbConn, $createTableSQL);
 			if($query!==false){
 				/*if(pg_connection_status() === 0) {

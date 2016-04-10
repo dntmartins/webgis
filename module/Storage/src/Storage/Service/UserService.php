@@ -62,7 +62,6 @@ class UserService extends AbstractService {
     		$entity->lastAccess = $data;
     		$this->em->persist($entity);
     		$this->em->flush();
-    
     		return $entity;
     	}catch (\Exception $e){
     		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);

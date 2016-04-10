@@ -49,6 +49,27 @@ if(get_class($session->user)=='Storage\Entity\User'){
         ?>
     </head>
     <body>
+	    <div id="ajax_error"
+			onclick="$('#ajax_error').hide()"
+			class="alert alert-dismissable alert-danger alert-messages"
+			hidden="hidden">
+			<button class="close" type="button">×</button>
+			<div id="ajax_error_msg"></div>
+		</div>
+		<div id="ajax_success"
+			class="alert alert-dismissable alert-success alert-messages"
+			hidden="hidden">
+			<button class="close" onclick="$('#ajax_success').hide()"
+				type="button">×</button>
+			<div id="ajax_success_msg"></div>
+		</div>
+		<div id="ajax_warning"
+			class="alert alert-dismissable alert-warning alert-messages"
+			hidden="hidden">
+			<button class="close" onclick="$('#ajax_warning').hide()"
+				type="button">×</button>
+			<div id="ajax_warning_msg"></div>
+		</div>
 	    <div class="container">
 			<div class="row clearfix">
 				<div class="col-md-12 column">
