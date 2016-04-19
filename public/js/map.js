@@ -115,8 +115,10 @@ $(document).ready(function() {
 	seeDetail.on('select', function(e) {
 	    var collection = e.target.getFeatures(),
 	        feature = collection.item(0);
-	    $("#modal-description").modal("show")
-	    $("#modal-description-point").html(feature.get('description'));
+	    if(feature){
+	    	$("#modal-description").modal("show")
+		    $("#modal-description-point").html(feature.get('description'));
+	    }
 	    collection.clear();
 	});
 	

@@ -264,7 +264,6 @@ class UserController extends MainController {
 			return $this->showMessage('Não foi possível associar o usuário aos subprojetos.', 'home-error', '/');
 		}
 	}
-	
 	private function createPostGISTable($project, $user){
 		$tableName = 'table_' . $user->useId;
 		$serviceLocator = $this->getServiceLocator();
@@ -318,7 +317,6 @@ class UserController extends MainController {
 			return false;
 		}
 	}
-	
 	private function publishLayer($tableName, $prj){
 		try{
 			$prjName = $prj->projectName;
@@ -337,7 +335,6 @@ class UserController extends MainController {
 			return false;
 		}
 	}
-	
 	private function createGeoGigRepo($user, $project){
 		$dir = $this->getParentDir(__DIR__, 5);
 		$dir = $dir . "/geogig-repositories/" . $project->prjId;
