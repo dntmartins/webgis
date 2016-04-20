@@ -111,11 +111,11 @@ class GeoServerRESTService extends AbstractService {
 		}
 	}
 
-	public function createDatasource($geoServerLogin, $prjId, $datasource, $host){
+	public function createDatasource($geoServerLogin, $prjName, $datasource, $host){
 		try{
 			
-			if (isset($geoServerLogin) && isset($prjId) && isset($datasource) && isset($host)){
-				$workspace=$prjId;
+			if (isset($geoServerLogin) && isset($prjName) && isset($datasource) && isset($host)){
+				$workspace=$prjName;
 				LogHelper::writeOnLog("Teste de parametros OK em createDatasource, continue");
 				// Initiate cURL session
 				$service = "http://".$host; // replace with your URL
@@ -133,7 +133,7 @@ class GeoServerRESTService extends AbstractService {
 				//POST data
 				curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-type: application/xml"));
 				$xmlStr = "<dataStore>
-				  <name>".$prjId."</name>
+				  <name>".$datasource->dbName."</name>
 				  <connectionParameters>
 				    <host>".$datasource->host."</host>
 				    <port>".$datasource->port."</port>

@@ -23,6 +23,15 @@ class WorkspaceController extends MainController {
 	}
 
 	public function indexAction() {
+		$descriptorspec = array(
+				0 => array("pipe", "r"),  // stdin
+				1 => array("pipe", "w"),  // stdout
+				2 => array("pipe", "w"),  // stderr
+		);
+		$process = proc_open('env', $descriptorspec, $pipes, dirname(__FILE__), null);
+		$stdout = stream_get_contents($pipes[1]);
+		fclose($pipes[1]);
+		var_dump($stdout);
 		try {
 			$request = $this->getRequest ();
 			if ($this->verifyUserSession ()) {
