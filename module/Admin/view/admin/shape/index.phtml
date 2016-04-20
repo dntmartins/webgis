@@ -1,0 +1,42 @@
+<div class="userForms">
+	<h1 class="text-center">Remoção de shapefiles</h1>
+	<br /> <br /> <br />
+	<div class="form-group">
+		<label>Projeto:</label> 
+		<select id="prjs" name="prjs" onchange="setOlderAndNewerDates()"
+			class="required form-control" rel="tooltip" data-container="body"
+			data-placement="bottom" title="Selecione um projeto">
+			<option value="">Projetos</option>
+   			<?php
+				if (! empty ( $this->projects )) {
+					foreach ( $this->projects as $i => $project ) {
+						if ($project->active) {
+			?>
+					<option value="<?php echo $project->prjId; ?>">
+						<?php echo $project->projectName; ?>
+					</option>
+			<?php
+						}
+					}
+				}
+			?>
+		</select>
+	</div>
+	<span>De: </span>
+	<div class="form-group">
+		<input id="from" type="date" placeholder="dd/mm/aaaa"
+			class="form-control" name="publishDate" value="">
+		<script type="text/javascript"> $("#from").mask("99/99/9999");</script>
+	</div>
+	<span>Até: </span>
+	<div class="form-group">
+		<input id="to" type="date" placeholder="dd/mm/aaaa"
+			class="form-control" name="publishDate" value="">
+		<script type="text/javascript"> $("#to").mask("99/99/9999");</script>
+	</div>
+	<a class="btn btn-primary" href="javascript:removeShapes();"><span
+		class="glyphicon glyphicon-trash"></span> Remover</a> <br />
+</div>
+<script>
+var basePath = '<?php echo $this->basePath(); ?>';
+</script>
