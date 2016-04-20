@@ -35,7 +35,7 @@ $(document).ready(function() {
 				features : features,
 				url : function(extent) {
 					return 'http://webgis/geoserver/wfs?service=WFS&'
-							+ 'version=1.1.0&request=GetFeature&typename=' + projectName + ':' +tableName+'&'
+							+ 'version=1.1.0&request=GetFeature&typename=' + prjId + ':' +tableName+'&'
 							+ 'outputFormat=application/json&srsname=EPSG:3857&'
 							+ 'bbox=' + extent.join(',') + ',EPSG:3857';
 				},
@@ -178,7 +178,7 @@ $(document).ready(function() {
 	var transactWFS = function(p,feature,desc) {
 		var formatWFS = new ol.format.WFS();
 		var formatGML = new ol.format.GML({
-			featureNS: 'http://'+projectName,
+			featureNS: 'http://'+prjId,
 			featureType: tableName,
 			srsName: 'EPSG:3857'
 			});

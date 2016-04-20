@@ -474,16 +474,16 @@ class MainController extends AbstractActionController
     	return $template;
     }
     
-    public function deleteDatabase($prjName){
+    public function deleteDatabase($dbName){
     	$serviceLocator = $this->getServiceLocator();
     	$datasourceService = $serviceLocator->get ( 'Storage\Service\DataSourceService' );
     	$config = $this->getConfiguration();
     	LogHelper::writeOnLog("Em deleteDatabase, continue.");
     
-    	if ($prjName != null){
+    	if ($dbName != null){
     		$db =  pg_connect('host='.$config["datasource"]["host"].' dbname='.$config["datasource"]["dbName"].' user='.$config["datasource"]["login"].' password='.$config["datasource"]["password"].' connect_timeout=5');
     		if ($db != null){
-    			$sql = "DROP DATABASE ". strtolower($prjName);
+    			$sql = "DROP DATABASE ". strtolower($dbName);
     			$query = pg_query($db, $sql);
     			if ($query!==false){
     				LogHelper::writeOnLog("Removeu o banco, continue.");

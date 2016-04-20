@@ -211,10 +211,10 @@ class UserController extends MainController {
 										$commitService = $serviceLocator->get ('Storage\Service\CommitService');
 										$dir = $this->getParentDir(__DIR__, 5);
 										$dir = $dir . "/geogig-repositories/" . $project->prjId . "/" . $user->useId;;
-										$deleteTable = $this->deleteTable($tableName, $project->projectName);
+										$deleteTable = $this->deleteTable($tableName, $project->prjId);
 										$removeDir = $this->removeDir($dir);
 										$removeCommit = $commitService->removeByUserAndPrj($user, $project);
-										if(!$removeCommit && !$removeCommit && !$removeDir){
+										if(!$removeCommit && !$deleteTable && !$removeDir){
 											return $this->showMessage('Não foi possível associar o usuário aos subprojetos', 'admin-error', $url);
 										}
 									}
@@ -269,7 +269,7 @@ class UserController extends MainController {
 		$serviceLocator = $this->getServiceLocator();
 		$datasourceService = $serviceLocator->get ( 'Storage\Service\DataSourceService' );
 		$config = $this->getConfiguration();
-		$dbConn = pg_connect('host='.$config["datasource"]["host"].' dbname='.strtolower($project->projectName).' user='.$config["datasource"]["login"].' password='.$config["datasource"]["password"].' connect_timeout=5');
+		$dbConn = pg_connect('host='.$config["datasource"]["host"].' dbname='.strtolower($project->prjId).' user='.$config["datasource"]["login"].' password='.$config["datasource"]["password"].' connect_timeout=5');
 		if($dbConn!==false){
 			$selectTableSQL = 'SELECT * FROM public.' . $tableName;
 			$tableExists = pg_query($dbConn, $selectTableSQL);
@@ -293,18 +293,17 @@ class UserController extends MainController {
 					$layer->projection = "3857";
 					$resultLayer = $layerService->addLayer($layer);
 					if(!$resultLayer){
-						$this->deleteTable($tableName, $project->projectName);
+						$this->deleteTable($tableName, $project->prjId);
 					}else{
-						$this->publishLayer($tableName, $project);
-						if($this->createGeoGigRepo($user, $project)){
+						if($this->createGeoGigRepo($user, $project) && $this->publishLayer($tableName, $project)){
 							return true;
 						}else{
-							$this->deleteTable($tableName, $project->projectName);
+							$this->deleteTable($tableName, $project->prjId);
 							return false;
 						}
 					}
 				}else{
-					$this->deleteTable($tableName, $project->projectName);
+					$this->deleteTable($tableName, $project->prjId);
 					pg_close($dbConn);
 					return false;
 				}
@@ -319,13 +318,13 @@ class UserController extends MainController {
 	}
 	private function publishLayer($tableName, $prj){
 		try{
-			$prjName = $prj->projectName;
+			$prjId = $prj->prjId;
 			$geoRestService = $this->serviceLocator->get ( 'Storage\Service\GeoServerRESTService' );
 			$geoServerService = $this->serviceLocator->get ( 'Storage\Service\GeoServerService' );
 			$shape = strtolower(pathinfo($tableName, PATHINFO_FILENAME));
 			$geoserver = $geoServerService->getByPrj($prj->prjId);
 			$geoServerLogin = $geoserver->login.':'.$geoserver->pass;
-			$responseGeoServer =$geoRestService->createLayer($geoServerLogin, $prjName, $shape, $geoserver->host);
+			$responseGeoServer =$geoRestService->createLayer($geoServerLogin, $prjId, $shape, $geoserver->host);
 			if ($responseGeoServer){
 				return true;
 			}else{
