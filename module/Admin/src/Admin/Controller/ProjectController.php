@@ -4,14 +4,7 @@ namespace Admin\Controller;
 
 use Storage\Entity\User;
 use Storage\Service\UserService;
-use Zend\Session\Container;
-use Storage\Entity\Access;
-use Zend\I18n\Validator\Alnum;
-use Zend\I18n\Validator\Alpha;
-use Zend\I18n\Validator\Int;
 use Zend\Validator\StringLength;
-use Zend\I18n\Validator\PhoneNumber;
-use Zend\I18n\Validator\Zend\I18n\Validator;
 use Main\Controller\MainController;
 use Storage\Entity\Project;
 use Storage\Entity\Datasource;
@@ -160,37 +153,11 @@ class ProjectController extends MainController {
 								return $response;
 							}
 						}
-						$sldPath = null;
-						if( array_key_exists('sldUpload', $_FILES)){
-							$sldFile = $_FILES['sldUpload'];
-							$sldService = $serviceLocator->get ( 'Storage\Service\SldService' );
-							//verificando nome de estilo duplicado
-							if($this->verifyDuplicateSld($sldFile['name'], $ignoreId)){
-								$sld = $sldService->saveSld($sldFile, $serviceLocator, '1');
-								if (!$sld){
-									$response->setContent ( \Zend\Json\Json::encode ( array (
-											'status' => false,
-											'msg' => "Não foi possível inserir o arquivo de estilo"
-									) ) );
-									return $response;
-								}else{
-									$sldPath = $sld->diskLocation.$sld->sldId;
-									LogHelper::writeOnLog("Arquivo SLD salvo no sistema em (".$sldPath."), continue.");
-								}
-							}else{
-								LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: Sld com o nome ".$sldFile['name']." já existe Linha: " . __LINE__);
-								$response->setContent ( \Zend\Json\Json::encode ( array (
-										'status' => false,
-										'msg' => "Já existe um arquivo de estilo com esse nome!"
-								) ) );
-								return $response;
-							}
-						}
-						
 						if ($id) {
 							$result = $projectService->updateProject ( $prj );
 							if ($result) {
 								$projectService->commit ();
+								$this->showMessage ( 'Projeto alterado com sucesso!', "admin-success" );
 								$response->setContent ( \Zend\Json\Json::encode ( array (
 										'status' => true,
 										'msg' => "Projeto alterado com sucesso!" 
@@ -233,21 +200,16 @@ class ProjectController extends MainController {
 											if($geoserverService->addGeoserver($geoserver)){
 												if ($geoserverRESTService->createWorkspace ( $login, $prj->projectName, $geoserver->host)) {
 													if ($geoserverRESTService->createDatasource ($login, $prj->projectName, $datasource, $geoserver->host)) {
-														if (isset ( $sld )){
-															$result = $geoserverRESTService->createStyle ( $login, $sld, $geoserver->host);
-														}else{
-															$result = true;
-														}
+														$result = true;
 													}else{
+														$result = false;
 														$this->deleteDatabase($prj->projectName);
 														$geoserverRESTService->deleteWorkspace($login ,$prj->projectName, $geoserver->host);
 														$datasourceService->rollback();
 													}
-												}else{
-													LogHelper::writeOnLog("Create workspace geoserver FALHOU, pare.");												
 												}
 											}else{
-												LogHelper::writeOnLog("Falhou ao adicionar dados do geoserver no mysql, pare.");
+												$result = false;
 												$this->deleteDatabase($prj->projectName);
 												$datasourceService->rollback();
 											}
@@ -257,26 +219,21 @@ class ProjectController extends MainController {
 											$this->deleteDatabase($prj->projectName);
 										}
 									}else{
-										LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ .":". __LINE__.": FALHOU ao criar o banco de dados.");
+										$projectService->rollback ();
+										$response->setContent ( \Zend\Json\Json::encode ( array (
+												'status' => true,
+												'msg' => 'Ocorreu um erro ao criar o projeto!'
+										) ) );
 									}
 								}
 								if ($result) {
 									$datasourceService->commit();
-									$dirShapeFiles = getcwd () . "/module/Workspace/src/Workspace/file-uploads/shape-files/" . $prj->prjId.'/';
-									if (mkdir ( $dirShapeFiles) && chmod($dirShapeFiles, 0777)) {
-										$projectService->commit ();
-										$this->showMessage ( 'Projeto criado com sucesso!', "admin-success" );
-										$response->setContent ( \Zend\Json\Json::encode ( array (
-												'status' => true,
-												'msg' => 'Projeto criado com sucesso!' 
-										) ) );
-									} else {
-										$projectService->rollback ();
-										$response->setContent ( \Zend\Json\Json::encode ( array (
-												'status' => true,
-												'msg' => 'Ocorreu um erro ao criar o projeto!' 
-										) ) );
-									}
+									$projectService->commit ();
+									$this->showMessage ( 'Projeto criado com sucesso!', "admin-success" );
+									$response->setContent ( \Zend\Json\Json::encode ( array (
+											'status' => true,
+											'msg' => 'Projeto criado com sucesso!' 
+									) ) );
 									return $response;
 								} else {
 									if($saveLogo != null){
@@ -288,8 +245,6 @@ class ProjectController extends MainController {
 											LogHelper::writeOnLog("Ocorreu um erro ao apagar logo, caminho nao existe.");
 										}
 									}
-									if($sldPath)
-										unlink ( $sldPath );
 									$projectService->rollback ();
 									$response->setContent ( \Zend\Json\Json::encode ( array (
 											'status' => false,
@@ -667,25 +622,6 @@ class ProjectController extends MainController {
 				}
 			}else{
 				LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: Erro ao listar projetos. - Linha: " . __LINE__);
-			}
-			return true;
-		} catch (\Exception $e) {
-			LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage() ."- Linha: " . __LINE__);
-			return false;
-		}
-	}
-	
-	private function verifyDuplicateSld($name, $ignore=NULL){
-		try {
-			$serviceLocator = $this->getServiceLocator();
-			$sldService = $serviceLocator->get ('Storage\Service\SldService');
-			$slds = $sldService->listAll();
-			if($slds){
-				foreach ($slds as $sld){
-					if($ignore && $ignore == $sld->sldId)continue;
-					if (strtolower($sld->sldName) == strtolower($name))
-						return false;
-				}
 			}
 			return true;
 		} catch (\Exception $e) {

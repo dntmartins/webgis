@@ -295,8 +295,8 @@ class UserController extends MainController {
 					if(!$resultLayer){
 						$this->deleteTable($tableName, $project->projectName);
 					}else{
-						$this->publishLayer($tableName, $project);
-						if($this->createGeoGigRepo($user, $project)){
+						
+						if($this->createGeoGigRepo($user, $project) && $this->publishLayer($tableName, $project)){
 							return true;
 						}else{
 							$this->deleteTable($tableName, $project->projectName);

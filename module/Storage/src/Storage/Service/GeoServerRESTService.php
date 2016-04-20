@@ -5,9 +5,7 @@ namespace Storage\Service;
 use Main\Helper\LogHelper;
 
 class GeoServerRESTService extends AbstractService {
-	
 	public function createWorkspace($geoServerLogin, $workspace, $host){
-
 		try{
 			if (isset($geoServerLogin) && isset($workspace) && isset($host)){
 				LogHelper::writeOnLog("createWorkspace inicio");
@@ -111,11 +109,11 @@ class GeoServerRESTService extends AbstractService {
 		}
 	}
 
-	public function createDatasource($geoServerLogin, $prjName, $datasource, $host){
+	public function createDatasource($geoServerLogin, $prjId, $datasource, $host){
 		try{
 			
-			if (isset($geoServerLogin) && isset($prjName) && isset($datasource) && isset($host)){
-				$workspace=$prjName;
+			if (isset($geoServerLogin) && isset($prjId) && isset($datasource) && isset($host)){
+				$workspace=$prjId;
 				LogHelper::writeOnLog("Teste de parametros OK em createDatasource, continue");
 				// Initiate cURL session
 				$service = "http://".$host; // replace with your URL
@@ -133,7 +131,7 @@ class GeoServerRESTService extends AbstractService {
 				//POST data
 				curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-type: application/xml"));
 				$xmlStr = "<dataStore>
-				  <name>".$datasource->dbName."</name>
+				  <name>".$prjId."</name>
 				  <connectionParameters>
 				    <host>".$datasource->host."</host>
 				    <port>".$datasource->port."</port>
