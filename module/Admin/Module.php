@@ -70,9 +70,6 @@ class Module
     		if (get_class ( $controller ) == 'Admin\Controller\ProjectController') {
     			$controller->layout ( 'Admin/layout' );
     		}
-    		if (get_class ( $controller ) == 'Admin\Controller\ShapeController') {
-    			$controller->layout ( 'Admin/layout' );
-    		}
     	}, 100 );
     }
 }
