@@ -48,9 +48,7 @@ class ProjectController extends MainController {
 					$geoserverRESTService = $serviceLocator->get ( 'Storage\Service\GeoServerRESTService' );
 					$geoserverService = $serviceLocator->get ( 'Storage\Service\GeoServerService' );
 					$datasourceService = $serviceLocator->get ( 'Storage\Service\DataSourceService' );
-					
 					$formData = $this->getFormData ();
-					
 					$id = null;
 					$prj = null;
 					$ignoreId = null;
@@ -340,7 +338,6 @@ class ProjectController extends MainController {
 				if ($acl->isAllowed ( $this->session->user->rol->name, "Administração", "Administrar usuários e permissões" )) {
 					$formData = $this->getFormData ();
 					$prj_id = $formData ['id'];
-					
 					$serviceLocator = $this->getServiceLocator ();
 					$projectService = $serviceLocator->get ( 'Storage\Service\ProjectService' );
 					$accessService = $serviceLocator->get ( 'Storage\Service\AccessService' );
@@ -424,77 +421,6 @@ class ProjectController extends MainController {
 		} catch ( \Exception $e ) {
 			LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage() ."- Linha: " . __LINE__);
 			$this->showMessage ( 'Não foi possível ativar o projeto', 'admin-error' );
-			$response->setContent ( \Zend\Json\Json::encode ( array (
-					'status' => false,
-					'isLogged' => true 
-			) ) );
-			return $response;
-		}
-	}
-	public function publishAction() {
-		try {
-			$response = $this->getResponse ();
-			if ($this->verifyUserSession ()) {
-				$acl = $this->getServiceLocator ()->get ( 'Admin\Permissions\Acl' );
-				if ($acl->isAllowed ( $this->session->user->rol->name, "Administração", "Administrar usuários e permissões" )) {
-					$formData = $this->getFormData ();
-					$date = $formData ['date'];
-					$prjId = $formData ['id'];
-					
-					$serviceLocator = $this->getServiceLocator ();
-					$projectService = $serviceLocator->get ( 'Storage\Service\ProjectService' );
-					$accessService = $serviceLocator->get ( 'Storage\Service\AccessService' );
-					$shapefileService = $serviceLocator->get ( 'Storage\Service\ShapefileService' );
-					$datasourceService = $serviceLocator->get ( 'Storage\Service\DataSourceService' );
-					
-					$prj = $projectService->getById ( $prjId);
-					$shapes = $shapefileService->listByProjectId ( $prjId);
-					if($shapes){
-						$datasource = $datasourceService->getByDbName($prj->projectName);
-						$tableName = $shapefileService->getLayerTableName($prjId);
-						LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . ":". __LINE__." Layer table name: ".print_r($tableName, true));
-						$template = $this->getDbfTemplate();
-						if ($prj && $projectService->publish($prj,$date,$datasource,$tableName, $serviceLocator, $template)) {
-							$response->setContent ( \Zend\Json\Json::encode ( array (
-									'status' => true,
-									'isLogged' => true,
-									'msg' => 'Publicação realizada com sucesso' 
-							) ) );
-							return $response;
-						} else {
-							$response->setContent ( \Zend\Json\Json::encode ( array (
-									'status' => false,
-									'isLogged' => true,
-									'msg' => 'Não foi possível realizar a publicação' 
-							) ) );
-							return $response;
-						}
-					}
-					else{
-						$response->setContent ( \Zend\Json\Json::encode ( array (
-								'status' => false,
-								'isLogged' => true,
-								'msg' => 'Não existem layers para esse projeto'
-						) ) );
-						return $response;
-					}
-				}
-				$this->showMessage ( 'Você não possui permissões para realizar essa operação.', 'home-error' );
-				$response->setContent ( \Zend\Json\Json::encode ( array (
-						'status' => false,
-						'isLogged' => true 
-				) ) );
-				return $response;
-			}
-			$this->showMessage ( 'Você precisa fazer o login para realizar essa operação', 'home-error' );
-			$response->setContent ( \Zend\Json\Json::encode ( array (
-					'status' => false,
-					'isLogged' => false 
-			) ) );
-			return $response;
-		} catch ( \Exception $e ) {
-			LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage() ."- Linha: " . __LINE__);
-			$this->showMessage ( '', 'admin-error' );
 			$response->setContent ( \Zend\Json\Json::encode ( array (
 					'status' => false,
 					'isLogged' => true 

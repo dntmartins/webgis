@@ -19,7 +19,6 @@ if(get_class($session->user)=='Storage\Entity\User'){
 
        <!-- Le styles -->
         <?php echo $this->headLink(array('rel' => 'shortcut icon', 'type' => 'image/vnd.microsoft.icon', 'href' => $this->basePath() . '/img/favicon.ico'))
-				        ->prependStylesheet($this->basePath() . '/css/multi-select.css')
                         ->prependStylesheet($this->basePath() . '/css/style.css')
                         ->prependStylesheet($this->basePath() . '/css/font-awesome.min.css')
                         ->prependStylesheet($this->basePath() . '/css/bootstrap-theme.min.css')
@@ -30,12 +29,9 @@ if(get_class($session->user)=='Storage\Entity\User'){
         <?php echo $this->headScript()
         	->prependFile($this->basePath() . '/js/validate-forms.js')
             ->prependFile($this->basePath() . '/js/admin-window.js')
-            ->prependFile($this->basePath() . '/js/jquery.multi-select.js')
-            ->prependFile($this->basePath() . '/js/jquery.mask.min.js')
             ->prependFile($this->basePath() . '/js/bootstrap.min.js')
-            ->prependFile($this->basePath() . '/js/onload-page-events.js')
-            ->prependFile($this->basePath() . '/js/respond.min.js', 'text/javascript', array('conditional' => 'lt IE 9',))
-            ->prependFile($this->basePath() . '/js/html5shiv.js',   'text/javascript', array('conditional' => 'lt IE 9',))
+            ->prependFile($this->basePath() . '/js/tablesorter.js')
+            ->prependFile($this->basePath() . '/js/jquery.tablesorter.js')
             ->prependFile($this->basePath() . '/js/jquery.min.js')
         ?>
     </head>
@@ -97,7 +93,6 @@ if(get_class($session->user)=='Storage\Entity\User'){
 									<li><a href="<?php echo $this->basePath(); ?>/user">Usuários</a></li>
 									<li><a href="<?php echo $this->basePath(); ?>/role">Perfis</a></li>
 									<li><a href="<?php echo $this->basePath(); ?>/project">Projetos</a></li>
-									<li><a href="<?php echo $this->basePath(); ?>/shape">Remover shapefiles</a></li>
 <!-- 								<li> -->
 									<!--  <a href="<?php echo $this->basePath(); ?>/datastore">Conexões</a> -->
 <!-- 								</li> -->

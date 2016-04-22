@@ -8,7 +8,6 @@ return array(
         	'Admin\Controller\Role' => 'Admin\Controller\RoleController',
         	'Admin\Controller\User' => 'Admin\Controller\UserController',
         	'Admin\Controller\Project ' => 'Admin\Controller\ProjectController',
-        	'Admin\Controller\Shape ' => 'Admin\Controller\ShapeController'
         ),
     ),
     'router' => array(
@@ -42,17 +41,6 @@ return array(
         			'defaults' => array(
         				'__NAMESPACE__' => 'Admin\Controller',
         				'controller'    => 'Project',
-        				'action'        => 'index',
-        			),
-        		),
-        	),
-        	'shape' => array(
-        		'type'    => 'Segment',
-        		'options' => array(
-        			'route'    => '/shape[/:action]',
-        			'defaults' => array(
-        			'__NAMESPACE__' => 'Admin\Controller',
-        				'controller'    => 'Shape',
         				'action'        => 'index',
         			),
         		),
