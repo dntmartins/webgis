@@ -30,7 +30,6 @@ class ProjectController extends MainController {
 			}
 			return $this->showMessage ( 'Você precisa fazer o login para realizar essa operação', 'home-error', '/' );
 		} catch ( \Exception $e ) {
-			LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage() ."- Linha: " . __LINE__);
 			return $this->showMessage ( 'Não foi possível recuperar os projetos cadastrados', 'home-error', '/' );
 		}
 	}
@@ -99,7 +98,6 @@ class ProjectController extends MainController {
 						}
 						$description = trim ( $formData ['description'] );
 						if ($description) {
-							LogHelper::writeOnLog("O campo descricao estah ok.");
 							$prj->description = $description;
 						}else {
 							$response->setContent ( \Zend\Json\Json::encode ( array (
@@ -110,7 +108,6 @@ class ProjectController extends MainController {
 						}
 						$link = trim ( $formData ['link'] );
 						if ($link) {
-							LogHelper::writeOnLog("O campo link estah ok.");
 							$prj->link = $link;
 						}else {
 							$response->setContent ( \Zend\Json\Json::encode ( array (
@@ -127,7 +124,6 @@ class ProjectController extends MainController {
 								if($imagePath && $logoName)
 									$saveLogo = $this->sendLogoToStorage ( $imagePath, $logoName );
 								else{
-									LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: Logo (_FILES ['image']) está vazio - Linha: " . __LINE__);
 									$response->setContent ( \Zend\Json\Json::encode ( array (
 											'status' => false,
 											'msg' => "Não foi possível inserir o logo!"
@@ -143,7 +139,6 @@ class ProjectController extends MainController {
 									) ) );
 								}
 							}else {
-								LogHelper::writeOnLog("Imagem de logo nao enviada mas eh obrigatoria.");
 								$response->setContent ( \Zend\Json\Json::encode ( array (
 										'status' => false,
 										'msg' => "O campo logo é obrigatório"
@@ -174,7 +169,6 @@ class ProjectController extends MainController {
 							if ($projectService->add ( $prj )) {
 								if($this->renameLogo ( $prj )){
 									if ($this->createDatabase ( $prj->projectName )) {
-										LogHelper::writeOnLog("Criado banco de dados no PostgreSQL, continue.");
 										$config = $this->getConfiguration();
 										
 										$datasourceService->begin();
@@ -239,8 +233,6 @@ class ProjectController extends MainController {
 										$pathLogo = getCwd() . '/module/Workspace/src/Workspace/file-uploads/logos/'.$prj->prjId.".".$ext;
 										if ($pathLogo){
 											unlink ($pathLogo);
-										}else{
-											LogHelper::writeOnLog("Ocorreu um erro ao apagar logo, caminho nao existe.");
 										}
 									}
 									$projectService->rollback ();
@@ -250,8 +242,6 @@ class ProjectController extends MainController {
 									) ) );
 									return $response;
 								}
-							}else{
-								LogHelper::writeOnLog("Projeto NAO inserido, parando.");
 							}
 						}
 					} else {
@@ -273,7 +263,6 @@ class ProjectController extends MainController {
 			) ) );
 			return $response;
 		} catch ( \Exception $e ) {
-			LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage()." Linha: " . __LINE__);
 			$response->setContent ( \Zend\Json\Json::encode ( array (
 					'status' => false,
 					'msg' => 'Não foi possível realizar essa operação'
@@ -288,11 +277,9 @@ class ProjectController extends MainController {
 		$config = $this->getConfiguration();
 		$dbConn = pg_connect('host='.$config["datasource"]["host"].' user='.$config["datasource"]["login"].' password='.$config["datasource"]["password"].' connect_timeout=5');
 		if($dbConn!==false){
-			LogHelper::writeOnLog("Conectado ao PostgreSQL, continue.");
 			$sql = 'CREATE DATABASE "'. $prjName.'"';
 			$query = pg_query($dbConn, $sql);
 			if($query!==false){
-				LogHelper::writeOnLog("Database ".$prjName." criada, continue.");
 				if(pg_connection_status() === 0) {// conexao ok, então fecha
 					pg_close($dbConn);
 				}
@@ -300,33 +287,27 @@ class ProjectController extends MainController {
 				$sqlPostgis = "CREATE EXTENSION postgis";
 				$queryPostgis = pg_query($dbConn, $sqlPostgis);
 				if ($queryPostgis!==false){
-					LogHelper::writeOnLog("Extensao Postgis criada, continue.");
 					$sqlTopology = "CREATE EXTENSION postgis_topology";
 					$queryTopology = pg_query($dbConn, $sqlTopology);
 					if ($queryTopology!==false){
-						LogHelper::writeOnLog("Extensao postgis_topology criada, continue.");
 						pg_close($dbConn);
 						return true;					
 					}else{
-						LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: Extensao postgis_topology falhou - Linha: " . __LINE__);
 						$this->deleteDatabase($prjName);
 						pg_close($dbConn);
 						return false;
 					}
 				}else{
-					LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: Extensao postgis falhou - Linha: " . __LINE__);
 					$this->deleteDatabase($prjName);
 					pg_close($dbConn);
 					return false;
 				}
 			}else{
-				LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: Criar database ".$prjName." falhou - Linha: " . __LINE__);
 				//$this->deleteDatabase($prjName);
 				pg_close($dbConn);
 				return false;
 			}
 		}else{
-			LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . ":" . __LINE__." FALHOU ao conectar ao banco de dados: ".print_r($config, true));
 			return false;
 		}
 	}
@@ -369,7 +350,6 @@ class ProjectController extends MainController {
 			) ) );
 			return $response;
 		} catch ( \Exception $e ) {
-			LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage() ."- Linha: " . __LINE__);
 			$this->showMessage ( 'Não foi possível desativar o projeto', 'admin-error' );
 			$response->setContent ( \Zend\Json\Json::encode ( array (
 					'status' => false,
@@ -419,7 +399,6 @@ class ProjectController extends MainController {
 			) ) );
 			return $response;
 		} catch ( \Exception $e ) {
-			LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage() ."- Linha: " . __LINE__);
 			$this->showMessage ( 'Não foi possível ativar o projeto', 'admin-error' );
 			$response->setContent ( \Zend\Json\Json::encode ( array (
 					'status' => false,
@@ -446,11 +425,8 @@ class ProjectController extends MainController {
 				if ($copy){
 					return $logo;
 				}
-			}else{
-				LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: Variável logo vazia. - Linha: " . __LINE__);		
 			}
 		}catch (\Exception $e){
-			LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage() ."- Linha: " . __LINE__);
 			return false;
 		}
 	}
@@ -470,14 +446,8 @@ class ProjectController extends MainController {
 			if ($rename) {
 				if ($projectService->updateLogo ( $prj->prjId, $path )) {
 					return true;
-				}else{
-					LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: Erro no update de logo. - Linha: " . __LINE__);		
 				}
-			}else{
-				LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: Erro ao renomear diretório. - Linha: " . __LINE__);		
-				}
-		}else{
-			LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: Variável prj vazia. - Linha: " . __LINE__);		
+			}
 		}
 	}
 	public function getLogoAction()
@@ -500,8 +470,6 @@ class ProjectController extends MainController {
 				
 			if(!$prj){
 				$imageContent=$this->getImage();
-			}else{
-				LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: Variável projeto vazia. - Linha: " . __LINE__);		
 			}
 					
 			$extensao = pathinfo($prj->logo);
@@ -519,7 +487,6 @@ class ProjectController extends MainController {
 			// TODO: aqui eh aconselhado usar a funcao mb_strlen no lugar de strlen, mas um suporte adicional deve ser instalado no php, e portanto adotamos strlen
 			return $response;
 		}catch (\Exception $e){
-			LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage() ."- Linha: " . __LINE__);
 			$response->setContent(\Zend\Json\Json::encode(array('status' => false, 'isLogged' => true, 'permitted' => true, 'msg' => 'Falhou ao recuperar a foto.')));
 			return $response;
 		}
@@ -530,7 +497,6 @@ class ProjectController extends MainController {
         	if(!$path || !is_file($path)) $path=PUBLIC_PATH."/img/100x100.jpg";
         	return file_get_contents($path);
     	}catch (\Exception $e){
-    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage() ."- Linha: " . __LINE__);
     	    return null;
     	}
 	}
@@ -546,12 +512,9 @@ class ProjectController extends MainController {
 					if (strtolower($project->projectName) == strtolower($name))
 						return false;
 				}
-			}else{
-				LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: Erro ao listar projetos. - Linha: " . __LINE__);
 			}
 			return true;
 		} catch (\Exception $e) {
-			LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: ".$e->getMessage() ."- Linha: " . __LINE__);
 			return false;
 		}
 	}

@@ -69,9 +69,6 @@ class Module implements AutoloaderProviderInterface
     
     	return array(
     			'factories' => array(
-    					'Storage\Service\ShapefileService' => function($service) {
-    						return new ShapefileService($service->get('Doctrine\ORM\EntityManager'));
-    					},
     					'Storage\Service\UserService' => function($service) {
     						return new UserService($service->get('Doctrine\ORM\EntityManager'));
     					},
@@ -92,12 +89,6 @@ class Module implements AutoloaderProviderInterface
     					},
     					'Storage\Service\RolePrivilegeService' => function($service) {
     					   return new RolePrivilegeService($service->get('Doctrine\ORM\EntityManager'));
-    					},
-    					'Storage\Service\EmailService' => function($service) {
-    						return new EmailService();
-    					},
-    					'Storage\Service\SldService' => function($service) {
-    						return new SldService($service->get('Doctrine\ORM\EntityManager'));
     					},
     					'Storage\Service\LayerService' => function($service) {
     						return new LayerService($service->get('Doctrine\ORM\EntityManager'));
