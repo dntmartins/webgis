@@ -463,6 +463,17 @@ class MainController extends AbstractActionController
     	return true;
     }
     
+    public function getDbfTemplate(){
+    	$templateContent = file_get_contents (getcwd()."/module/Workspace/src/Workspace/dbfTemplate.json" );
+    	if($templateContent){
+    		$template = json_decode ($templateContent, true);
+    	}else{
+    		LogHelper::writeOnLog(__CLASS__ . ":" . __FUNCTION__ . " - Mensagem: Falhou ao ler template do arquivo dbf" . " - Linha: " . __LINE__);
+    		return false;
+    	}
+    	return $template;
+    }
+    
     public function deleteDatabase($prjName){
     	$serviceLocator = $this->getServiceLocator();
     	$datasourceService = $serviceLocator->get ( 'Storage\Service\DataSourceService' );
