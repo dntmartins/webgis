@@ -12,6 +12,9 @@ sudo apt-get install python-gdal
 ##Curl
 sudo apt-get install curl php5-curl
 
+##PHP 5 Intl
+ sudo apt-get install php5-intl
+
 ##Mysql
 sudo apt-get install php5-mysql mysql-server-5.5
 
