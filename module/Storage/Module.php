@@ -12,23 +12,13 @@ namespace Storage;
 use Zend\ModuleManager\Feature\AutoloaderProviderInterface;
 use Zend\Mvc\ModuleRouteListener;
 use Zend\Mvc\MvcEvent;
-use Storage\Service\ShapefileService;
-use Storage\Service\PhotoService;
 use Storage\Service\UserService;
 use Storage\Service\ProjectService;
-use Storage\Service\PhotoAlbumService;
 use Storage\Service\AccessService;
 use Storage\Service\RoleService;
 use Storage\Service\ResourcesService;
 use Storage\Service\PrivilegeService;
 use Storage\Service\RolePrivilegeService;
-use Storage\Service\RequisitionService;
-use Storage\Service\AttachmentService;
-use Storage\Service\ReportService;
-use Storage\Service\RequisitionUserService;
-use Storage\Service\EmailService;
-use Storage\Service\SldService;
-use Storage\Service\LayerService;
 use Storage\Service\DataSourceService;
 use Storage\Service\GeoServerService;
 use Storage\Service\GeoServerRESTService;
@@ -89,9 +79,6 @@ class Module implements AutoloaderProviderInterface
     					},
     					'Storage\Service\RolePrivilegeService' => function($service) {
     					   return new RolePrivilegeService($service->get('Doctrine\ORM\EntityManager'));
-    					},
-    					'Storage\Service\LayerService' => function($service) {
-    						return new LayerService($service->get('Doctrine\ORM\EntityManager'));
     					},
     					'Storage\Service\DataSourceService' => function($service) {
     						return new DataSourceService($service->get('Doctrine\ORM\EntityManager'));

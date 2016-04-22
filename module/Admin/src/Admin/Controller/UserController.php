@@ -286,22 +286,11 @@ class UserController extends MainController {
 				$query = pg_query($dbConn, $geomColumn);
 				if ($query!==false){
 					pg_close($dbConn);
-					$layerService = $this->serviceLocator->get ( 'Storage\Service\LayerService' );
-					$layer = new Layer();
-					$layer->prj = $project;
-					$layer->use = $user;
-					$layer->projection = "3857";
-					$resultLayer = $layerService->addLayer($layer);
-					if(!$resultLayer){
-						$this->deleteTable($tableName, $project->projectName);
+					if($this->createGeoGigRepo($user, $project) && $this->publishLayer($tableName, $project)){
+						return true;
 					}else{
-						
-						if($this->createGeoGigRepo($user, $project) && $this->publishLayer($tableName, $project)){
-							return true;
-						}else{
-							$this->deleteTable($tableName, $project->projectName);
-							return false;
-						}
+						$this->deleteTable($tableName, $project->projectName);
+						return false;
 					}
 				}else{
 					$this->deleteTable($tableName, $project->projectName);
