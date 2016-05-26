@@ -15,9 +15,9 @@
         	
         </div>
         <div id="form-group-link" class="form-group">
-            <label for="link-input">Link do servidor Terrabrasilis para o perfil deste projeto: </label>
+            <label for="link-input">Link do repositorio remoto GeoGig: </label>
             <a class="glyphicon glyphicon-question-sign" rel="tooltip" onmouseenter="moreInfo()" data-container="body" data-placement="bottom" title="Para informações sobre como incluir URLs de serviços no Terrabrasilis, acesse: http://www.dpi.inpe.br/boeing/doku.php?id=wiki:development:portal"></a>
-            <input id="link-input" type="text" class="form-control" name="link" placeholder="Link" value="<?php $this->prj?print $this->prj->link:''?>">
+            <input id="link-input" type="text" class="form-control" name="link" placeholder="Link" value="<?php $this->prj?print $this->prj->urlRepo:''?>">
             <span id="help-block-link" class="help-block"></span>
         </div>
 		<div class="form-group">

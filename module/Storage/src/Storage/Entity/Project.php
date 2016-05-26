@@ -45,9 +45,9 @@ class Project
     /**
      * @var string
      *
-     * @ORM\Column(name="link", type="string", length=45, nullable=true)
+     * @ORM\Column(name="url_repo", type="string", length=45, nullable=true)
      */
-    private $link;
+    private $urlRepo;
 
     /**
      * @var boolean

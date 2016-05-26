@@ -208,13 +208,11 @@ class UserController extends MainController {
 									if(array_search($prjSelected,$prjs)===false){
 										$tableName = 'table_' . $user->useId;
 										$project = $projectService->getById ($prjSelected);
-										$commitService = $serviceLocator->get ('Storage\Service\CommitService');
 										$dir = $this->getParentDir(__DIR__, 5);
 										$dir = $dir . "/geogig-repositories/" . $project->prjId . "/" . $user->useId;;
 										$deleteTable = $this->deleteTable($tableName, $project->projectName);
 										$removeDir = $this->removeDir($dir);
-										$removeCommit = $commitService->removeByUserAndPrj($user, $project);
-										if(!$removeCommit && !$removeCommit && !$removeDir){
+										if(!$deleteTable && !$removeDir){
 											return $this->showMessage('Não foi possível associar o usuário aos subprojetos', 'admin-error', $url);
 										}
 									}
@@ -341,7 +339,8 @@ class UserController extends MainController {
 				$commands = array(
 						"sudo geogig init", 
 						'sudo geogig config --local user.name "' . $user->name .'"',
-						'sudo geogig config --local user.email "' . $user->email . '"'
+						'sudo geogig config --local user.email "' . $user->email . '"',
+						"sudo geogig remote add origin http://localhost:8182"
 				);
 				foreach($commands as $command){
 					//$output = shell_exec(escapeshellcmd($command));

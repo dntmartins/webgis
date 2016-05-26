@@ -9,9 +9,6 @@
 namespace Workspace\Controller;
 
 use Zend\Session\Container;
-use Storage\Entity\Shapefile;
-use Storage\Entity\Layer;
-use Storage\Entity\Commit;
 use Main\Controller\MainController;
 use Main\Helper\LogHelper;
 
@@ -57,8 +54,22 @@ class WorkspaceController extends MainController {
 				$shapes = null;
 				$commits = null;
 				if($current_prj){
-					$commitService = $serviceLocator->get ('Storage\Service\CommitService');
-					$commits = $commitService->getByUserAndPrj($this->session->user,$current_prj);
+					$commits = null;
+					$dir = $this->getParentDir(__DIR__, 5);
+					$dir = $dir . "/geogig-repositories/" . $this->session->current_prj->prjId . "/" .$this->session->user->useId;
+					if(chdir($dir)){
+						$commands = array(
+								"sudo geogig log",
+						);
+						foreach($commands as $command){
+							exec(escapeshellcmd($command), $output, $return_var);
+							if($return_var !== 0){
+								//$this->removeDir($dir);
+								return $this->showMessage('Ocorreu um erro ao realizar commit: ' . end($output), 'workspace-error', '/workspace');
+							}
+						}
+						$commits = $output;
+					}
 				}
 				return array (
 					'commits' => $commits,
@@ -105,8 +116,6 @@ class WorkspaceController extends MainController {
 				if(strlen($msg) === 0){
 					return $this->showMessage('Por favor, insira uma mensagem para realizar o commit', 'workspace-error', '/workspace');
 				}
-				$serviceLocator = $this->getServiceLocator ();
-				$commitService = $serviceLocator->get ('Storage\Service\CommitService');
 				$config = $this->getConfiguration();
 				$dir = $this->getParentDir(__DIR__, 5);
 				$dir = $dir . "/geogig-repositories/" . $this->session->current_prj->prjId . "/" .$this->session->user->useId;
@@ -123,21 +132,9 @@ class WorkspaceController extends MainController {
 						exec(escapeshellcmd($command), $output, $return_var);
 						if($return_var !== 0){
 							//$this->removeDir($dir);
+							shell_exec(escapeshellcmd("sudo geogig reset"));
 							return $this->showMessage('Ocorreu um erro ao realizar commit: ' . end($output), 'workspace-error', '/workspace');
 						}
-					}
-					$commitEntity = new Commit();
-					$commitEntity->hash =  substr($output["17"],1,40);
-					$commitEntity->msg = $msg;
-					$commitEntity->use = $this->session->user;
-					$commitEntity->name = $this->session->user->name; //mudar
-					$date = new \DateTime("now", new \DateTimeZone("America/Sao_Paulo"));
-					$commitEntity->date = date_format($date,"d/m/Y H:i:s");
-					$commitEntity->prj = $this->session->current_prj;
-					$commitOk = $commitService->addCommit($commitEntity);
-					if(!$commitOk){
-						shell_exec(escapeshellcmd("sudo geogig reset"));
-						return $this->showMessage('Ocorreu um erro ao realizar commit', 'workspace-error', '/workspace');
 					}
 				}else{
 					return $this->showMessage('Ocorreu um erro ao realizar commit', 'workspace-error', '/workspace');
@@ -196,4 +193,71 @@ class WorkspaceController extends MainController {
 		}
 	}
 	
+	public function pushAction(){
+		try {
+			if ($this->verifyUserSession ()) {
+				$formData = $this->getFormData ();
+				$dir = $this->getParentDir(__DIR__, 5);
+				$dir = $dir . "/geogig-repositories/" . $this->session->current_prj->prjId . "/" .$this->session->user->useId;
+				if(chdir($dir)){
+					$commands = array(
+							"sudo geogig push origin",
+					);
+					foreach($commands as $command){
+						exec(escapeshellcmd($command), $output, $return_var);
+						if($return_var !== 0){
+							//$this->removeDir($dir);
+							return $this->showMessage('Ocorreu um erro ao realizar push para servidor remoto', 'workspace-error', '/workspace');
+						}
+					}
+				}else{
+					return $this->showMessage('Ocorreu um erro ao realizar push para servidor remoto', 'workspace-error', '/workspace');
+				}
+				return $this->showMessage('Push realizado com sucesso', 'workspace-success', '/workspace');
+			}else{
+				return $this->showMessage('Sua sessão expirou, favor relogar', 'workspace-error', '/workspace');
+			}
+		} catch (\Exception $e) {
+			return $this->showMessage('Ocorreu um erro ao realizar push', 'workspace-error', '/workspace');
+		}
+	}
+	
+	public function pullAction(){
+		try {
+			if ($this->verifyUserSession ()) {
+				$config = $this->getConfiguration();
+				$dir = $this->getParentDir(__DIR__, 5);
+				$dir = $dir . "/geogig-repositories/" . $this->session->current_prj->prjId . "/" . $this->session->user->useId;
+				$database = strtolower($this->session->current_prj->projectName);
+				$tableName = "table_" . $this->session->user->useId;
+				if(chdir($dir)){
+					$commands = array(
+							"sudo geogig pull origin master",
+							"sudo geogig pg export --database " .
+							$database . " --user " .
+							$config["datasource"]["login"] .
+							" --password " .
+							$config["datasource"]["password"] .
+							" -o " . $tableName .
+							" " .
+							$tableName,
+					);
+						
+					foreach($commands as $command){
+						exec(escapeshellcmd($command), $output, $return_var);
+						if($return_var !== 0){
+							return $this->showMessage('Ocorreu um erro ao realizar pull para o repositorio remoto: ' . end($output), 'workspace-error', '/workspace');
+						}
+					}
+				}else{
+					return $this->showMessage('Ocorreu um erro ao realizar pull para o repositorio remoto', 'workspace-error', '/workspace');
+				}
+				return $this->showMessage('Pull realizado com sucesso', 'workspace-success', '/workspace');
+			}else{
+				return $this->showMessage('Sua sessão expirou, favor relogar', 'workspace-error', '/workspace');
+			}
+		} catch (\Exception $e) {
+			return $this->showMessage('Ocorreu um erro ao realizar pull para o repositorio remoto', 'workspace-error', '/workspace');
+		}
+	}
 }

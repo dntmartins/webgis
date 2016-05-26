@@ -64,7 +64,7 @@
 								class="btn btn-primary">
 								<i class="mdi mdi-cloud-upload"></i>
 							</div>
-							<div id="push" title="Realizar pull do servidor"
+							<div id="pull" title="Realizar pull do servidor"
 								class="btn btn-warning">
 								<i class="mdi mdi-cloud-download"></i>
 							</div>
@@ -87,11 +87,7 @@
 					<?php }else {?>
 						<thead>
 							<tr>
-								<th>Id</th>
-								<th>Mensagem</th>
-								<th>Autor</th>
-								<th>Data</th>
-								<th>Revert</th>
+								<th>Log</th>
 							</tr>
 						</thead>
 						<tbody>
@@ -100,17 +96,21 @@
 						foreach ( $this->commits as $commit ) {
 							?>
 							<tr>
-								<td><?php echo substr($commit->hash,0,8); ?></td>
-								<td><?php echo $commit->msg; ?></td>
-								<td><?php echo $commit->use->name; ?></td>
-								<td><?php echo $commit->date; ?></td>
-								<td>
-								<form method="post" action="/workspace/revertCommit">
-									<input type="hidden" name="commitId" value="<?php echo $commit->hash;?>" />
-									<img style="float:left" id="<?php echo "revert-ajax-gif-" . $count; ?>" class="pull-right" src="/img/ajax-loader.gif" hidden="hidden">
-									<input type="submit" value="Revert" onclick="<?php echo "showRevertAjaxGif(" . $count . ")"; ?>"/>
-								</form>
-								</td>
+								<?php
+								$pos = strpos($commit, 'Commit');
+								if($pos !== false){
+									echo 
+									'<td><strong>' . $commit . '</strong>'.
+										'<form  class="pull-right" method="post" action="/workspace/revertCommit" style="display:inline-block">'.
+										'<input type="hidden" name="commitId" value="'.substr($commit,9,41). '" />'.
+										'<img id="revert-ajax-gif-' . $count . '" class="pull-right" src="/img/ajax-loader.gif" hidden="hidden">'.
+										'<input type="submit" value="Revert" onclick="showRevertAjaxGif(' . $count . ')" />'.
+										'</form>'.
+									'</td>';
+								}else{
+									echo '<td>' . $commit . '</td>';
+								}
+								?>
 							</tr>
 						<?php
 						$count++;
@@ -210,7 +210,6 @@
 						</div>
 					</div>
 				</div>
-				<!-- Passos validação shape -->
 				<div class="modal fade" id="modal-description" role="dialog"
 					aria-labelledby="modal" aria-hidden="true">
 					<div class="modal-dialog">
@@ -228,6 +227,42 @@
 								<button type="button" class="btn btn-default"
 									data-dismiss="modal">Fechar</button>
 							</div>
+						</div>
+					</div>
+				</div>
+				<div class="modal fade" id="modal-push" role="dialog"
+					aria-labelledby="modal" aria-hidden="true">
+					<div class="modal-dialog">
+						<div class="modal-content">
+							<div class="modal-header">
+								<!-- <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button> -->
+								<h4 class="modal-title" id="modal-insert-point-title">Realizar <strong>push</strong> para o repositorio remoto</h4>
+							</div>
+							<form action="workspace/push" method="post">
+								<div class="modal-footer">
+									<button id='modal-insert-close' type="button" class="btn btn-default"
+										data-dismiss="modal">Cancelar</button>
+									<button id="modal-push-submit" type="submit" class="btn btn-primary">Push</button>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+				<div class="modal fade" id="modal-pull" role="dialog"
+					aria-labelledby="modal" aria-hidden="true">
+					<div class="modal-dialog">
+						<div class="modal-content">
+							<div class="modal-header">
+								<!-- <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button> -->
+								<h4 class="modal-title">Realizar <strong>pull</strong> do repositorio remoto</h4>
+							</div>
+							<form action="workspace/pull" method="post">
+								<div class="modal-footer">
+									<button id='modal-insert-close' type="button" class="btn btn-default"
+										data-dismiss="modal">Cancelar</button>
+									<button id="modal-pull-submit" type="submit" class="btn btn-primary">Pull</button>
+								</div>
+							</form>
 						</div>
 					</div>
 				</div>

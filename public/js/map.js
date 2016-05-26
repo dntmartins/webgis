@@ -258,8 +258,13 @@ $(document).ready(function() {
 		  document.getElementById("modal-insert-submit").onclick = function(){
 			  $("#modal-insert-point").modal('hide');
 			  var desc = $("#desc-point").val();
-			  $("#desc-point").val("");
-			  transactWFS('insert', e.feature, desc);
+			  if(desc.trim() == ""){
+				  showAjaxErrorMessage("Valor da descrição não pode ser vazio");
+				  vectorSource.removeFeature(e.feature);
+			  }else{
+				  $("#desc-point").val("");
+				  transactWFS('insert', e.feature, desc);
+			  }
 		  };
 		  document.getElementById("modal-insert-close").onclick = function(){
 			  vectorSource.removeFeature(e.feature);
@@ -297,6 +302,18 @@ $(document).ready(function() {
 		map.addInteraction(seeDetailHover);
 		return false;
 	});
+	
+	$('#push').click(function() {
+		$("#modal-push").modal('show');
+		return false;
+	});
+	
+	$('#pull').click(function() {
+		$("#modal-pull").modal('show');
+		return false;
+	});
+	
+	
 	
 	//addInteraction("Point");
 });

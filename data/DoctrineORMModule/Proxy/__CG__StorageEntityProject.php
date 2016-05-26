@@ -83,10 +83,10 @@ class Project extends \Storage\Entity\Project implements \Doctrine\ORM\Proxy\Pro
     public function __sleep()
     {
         if ($this->__isInitialized__) {
-            return array('__isInitialized__', '' . "\0" . 'Storage\\Entity\\Project' . "\0" . 'prjId', '' . "\0" . 'Storage\\Entity\\Project' . "\0" . 'projectName', '' . "\0" . 'Storage\\Entity\\Project' . "\0" . 'description', '' . "\0" . 'Storage\\Entity\\Project' . "\0" . 'logo', '' . "\0" . 'Storage\\Entity\\Project' . "\0" . 'link', '' . "\0" . 'Storage\\Entity\\Project' . "\0" . 'active', '' . "\0" . 'Storage\\Entity\\Project' . "\0" . 'publicacaoOficial');
+            return array('__isInitialized__', '' . "\0" . 'Storage\\Entity\\Project' . "\0" . 'prjId', '' . "\0" . 'Storage\\Entity\\Project' . "\0" . 'projectName', '' . "\0" . 'Storage\\Entity\\Project' . "\0" . 'description', '' . "\0" . 'Storage\\Entity\\Project' . "\0" . 'logo', '' . "\0" . 'Storage\\Entity\\Project' . "\0" . 'urlRepo', '' . "\0" . 'Storage\\Entity\\Project' . "\0" . 'active', '' . "\0" . 'Storage\\Entity\\Project' . "\0" . 'publicacaoOficial');
         }
 
-        return array('__isInitialized__', '' . "\0" . 'Storage\\Entity\\Project' . "\0" . 'prjId', '' . "\0" . 'Storage\\Entity\\Project' . "\0" . 'projectName', '' . "\0" . 'Storage\\Entity\\Project' . "\0" . 'description', '' . "\0" . 'Storage\\Entity\\Project' . "\0" . 'logo', '' . "\0" . 'Storage\\Entity\\Project' . "\0" . 'link', '' . "\0" . 'Storage\\Entity\\Project' . "\0" . 'active', '' . "\0" . 'Storage\\Entity\\Project' . "\0" . 'publicacaoOficial');
+        return array('__isInitialized__', '' . "\0" . 'Storage\\Entity\\Project' . "\0" . 'prjId', '' . "\0" . 'Storage\\Entity\\Project' . "\0" . 'projectName', '' . "\0" . 'Storage\\Entity\\Project' . "\0" . 'description', '' . "\0" . 'Storage\\Entity\\Project' . "\0" . 'logo', '' . "\0" . 'Storage\\Entity\\Project' . "\0" . 'urlRepo', '' . "\0" . 'Storage\\Entity\\Project' . "\0" . 'active', '' . "\0" . 'Storage\\Entity\\Project' . "\0" . 'publicacaoOficial');
     }
 
     /**

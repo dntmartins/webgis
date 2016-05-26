@@ -58,7 +58,6 @@
 				<ul class="nav nav-tabs">
 					<li class="<?php echo $isActive[0] ?>" onclick="selectMenu(0)"><a data-toggle="tab" href="#menu0">Editar usuário</a></li>
 					<li class="<?php echo $isActive[1] ?>" onclick="selectMenu(1)"><a data-toggle="tab" href="#menu1">Alterar senha</a></li>
-					<li class="<?php echo $isActive[2] ?>" onclick="selectMenu(2)"><a data-toggle="tab" href="#menu2">Repositório remoto</a></li>
 				</ul>
 
 				<div class="tab-content">
@@ -110,47 +109,6 @@
 					</div>
 					<div id="menu1" class="tab-pane fade <?php echo $isActive[1] ?> in">
 						<h3>Alterar senha</h3>
-						<span class="help-block">A nova senha deve conter no mínimo 6
-							caracteres e não possuir caracteres em branco.</span> <br>
-						<form action="/configurations/changePassword" method="post">
-						
-							<div id="form-group-passwordOld" class="form-horizontal">
-					            <label for="passwordOld">Senha atual: </label>
-					            <input id="passwordOld" type="password" name="password" class="form-control" placeholder="Senha&#x20;atual" value="">
-					            <span id="help-block-passwordOld" class="help-block"></span>
-		        			</div>
-		        			
-		        			<div id="form-group-passwordNew1" class="form-horizontal">
-					            <label for="passwordNew1">Nova senha: </label>
-					            <input id="passwordNew1" type="password" name="passwordNew1" class="form-control" placeholder="Nova&#x20;senha" value="">
-					            <span id="help-block-passwordNew1" class="help-block"></span>
-		        			</div>
-		        			
-		        			
-		        			<div id="form-group-passwordNew2" class="form-horizontal">
-					            <label for="passwordNew2">Nova senha (Repetir): </label>
-					            <input id="passwordNew2" type="password" name="passwordNew2" class="form-control" 
-					            placeholder="Confirme&#x20;a&#x20;senha" value="">
-					            <span id="help-block-passwordNew2" class="help-block"></span>
-		        			</div>
-		 
-							<br>
-							<button type="submit" class="btn btn-primary" 
-								 	onclick="return validateForm(userChangePasswordForm)"
-								 	data-container="body" data-placement="bottom"
-									title="Enviando para o servidor...">Alterar
-							</button>
-
-							<button class="btn btn-default"
-								onclick="javascript:window.location.href='<?php echo $this->basePath?>/workspace'"
-								type="button">Cancelar</button>
-							<i id="loading2"
-								class="fa fa-cog fa-spin fa-1x fa-fw margin-bottom"
-								style="display: none;"></i>
-						</form>
-					</div>
-					<div id="menu2" class="tab-pane fade <?php echo $isActive[2] ?> in">
-						<h3>Configurar repositório remoto</h3>
 						<span class="help-block">A nova senha deve conter no mínimo 6
 							caracteres e não possuir caracteres em branco.</span> <br>
 						<form action="/configurations/changePassword" method="post">

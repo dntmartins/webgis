@@ -12,7 +12,7 @@
 				<tr>
 					<th>Nome</th>
 					<th>Descrição</th>
-					<th>Link</th>
+					<th>URL Repositorio</th>
 					<th>Ação</th>
 				</tr>
 			</thead>
@@ -24,7 +24,7 @@
 				    <tr>
 						<td id="prjName<?php echo $project->prjId ?>" class="<?php !$project->active?print 'link-disable':'' ?>"><?php echo $project->projectName; ?></td>
 						<td id="prjDesc<?php echo $project->prjId ?>" class="<?php !$project->active?print 'link-disable':'' ?>"><?php echo $project->description; ?></td>
-						<td id="prjLink<?php echo $project->prjId ?>" class="<?php !$project->active?print 'link-disable':'' ?>"><?php echo $project->link; ?></td>
+						<td id="prjLink<?php echo $project->prjId ?>" class="<?php !$project->active?print 'link-disable':'' ?>"><?php echo $project->urlRepo; ?></td>
 						<td>
 							<a id="editPrjBtn<?php echo $project->prjId ?>" class="glyphicon glyphicon-edit <?php !$project->active?print 'link-disable':'' ?>" href='<?php echo $this->basePath()."/project/form?id=".$project->prjId; ?>' rel="tooltip" data-container="body" data-placement="bottom" title="Modificar informações do projeto"></a>
 							<a id="enableDisablePrjBtn<?php echo $project->prjId ?>" class="glyphicon <?php $project->active?print ' glyphicon-ban-circle ':print ' glyphicon-ok-circle' ?>" <?php $project->active?print "href='javascript:disableProject(".$project->prjId.", \"".$this->basePath()."/project/disable\");'":print "href='javascript:enableProject(".$project->prjId.", \"".$this->basePath()."/project/enable\");'" ?> rel="tooltip" data-container="body" data-placement="bottom" title="<?php $project->active?print 'Desativar projeto':print 'Ativar projeto' ?>"></a>

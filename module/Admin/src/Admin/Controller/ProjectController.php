@@ -108,7 +108,7 @@ class ProjectController extends MainController {
 						}
 						$link = trim ( $formData ['link'] );
 						if ($link) {
-							$prj->link = $link;
+							$prj->urlRepo = $link;
 						}else {
 							$response->setContent ( \Zend\Json\Json::encode ( array (
 									'status' => false,

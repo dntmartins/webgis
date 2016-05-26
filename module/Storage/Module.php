@@ -89,9 +89,6 @@ class Module implements AutoloaderProviderInterface
     					'Storage\Service\GeoServerService' => function($service) {
     						return new GeoServerService($service->get('Doctrine\ORM\EntityManager'));
     					},
-    					'Storage\Service\CommitService' => function($service) {
-    					return new CommitService($service->get('Doctrine\ORM\EntityManager'));
-    					},
     			),
     	);
     }
